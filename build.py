@@ -1,4 +1,46 @@
-<!DOCTYPE html>
+#!/usr/bin/env python3
+"""EasyTechPack v2.1 - Cycle 1 fixes applied"""
+import os
+
+OUT = "/root/.openclaw/workspace/easytechpack/index.html"
+
+pages = [
+    ("cover", "\U0001f4cb", "Cover Page", "Your brand info and logo - START HERE"),
+    ("sketches", "\u270f\ufe0f", "Design Sketches", "Upload drawings of your garment from different angles"),
+    ("fabric-placement", "\U0001f9f5", "Fabric List", "What fabrics you need and where each one goes"),
+    ("trims", "\u2702\ufe0f", "Trims & Extras", "Zippers, buttons, labels, and other supplies"),
+    ("bom", "\U0001f9f6", "Materials List", "Complete list of everything needed to make this garment"),
+    ("measurements", "\U0001f4cf", "Measurements", "The actual sizes and dimensions for your garment"),
+    ("construction", "\U0001faa5", "How It's Made", "Notes on how the pieces are sewn together"),
+    ("stitch", "\U0001f517", "Stitch Details", "What stitches to use and where"),
+    ("detail-sketches", "\U0001f4d0", "Close-Up Details", "Zoomed-in drawings of tricky construction areas"),
+    ("how-to-measure", "\U0001f4d0", "How to Measure", "Diagrams showing WHERE to measure on the garment"),
+    ("care-labels", "\U0001f3f7\ufe0f", "Care Instructions", "Washing, drying, and ironing instructions for the label"),
+    ("grading", "\U0001f4ca", "Size Chart", "Measurements for each size (XS, S, M, L, XL)"),
+    ("grading-rules", "\U0001f4ca", "Size Differences", "How much each measurement changes between sizes"),
+    ("proto-tracking", "\U0001f52c", "Sample Tracking", "Track how each sample version matches your design"),
+    ("comments", "\U0001f4ac", "Feedback Notes", "Notes and changes for each sample round"),
+    ("cost", "\U0001f4b0", "Cost Calculator", "How much each piece costs to make"),
+    ("colorways", "\U0001f3a8", "Color Options", "All the colors this garment will come in"),
+    ("labels", "\U0001f3f7\ufe0f", "Labels & Tags", "Brand labels, size tags, and hang tags"),
+    ("packaging", "\U0001f4e6", "Packaging", "How the garment is packed and shipped"),
+    ("changelog", "\U0001f4dd", "Changes Log", "Keep track of all edits and updates"),
+]
+
+categories = {
+    "DESIGN": ["cover", "sketches", "detail-sketches"],
+    "MATERIALS": ["fabric-placement", "trims", "bom", "colorways"],
+    "SIZING": ["measurements", "how-to-measure", "grading", "grading-rules"],
+    "PRODUCTION": ["construction", "stitch", "care-labels", "proto-tracking", "comments"],
+    "BUSINESS": ["cost", "labels", "packaging", "changelog"],
+}
+
+cat_icons = {"DESIGN": "\U0001f3a8", "MATERIALS": "\U0001f9f5", "SIZING": "\U0001f4cf", "PRODUCTION": "\U0001f52c", "BUSINESS": "\U0001f4b0"}
+
+page_map = {p[0]: p for p in pages}
+
+# Build HTML
+html = """<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -113,14 +155,16 @@ td textarea{resize:vertical;min-height:28px}
 .page-content{padding:16px}
 .sketch-grid{grid-template-columns:1fr}
 .cover-box{padding:20px}
-table{display:block;overflow-x:auto}
 }
 </style>
 </head>
 <body>
-<div class="welcome-overlay" id="welcome">
+"""
+
+# Welcome overlay
+html += """<div class="welcome-overlay" id="welcome">
 <div class="welcome-box">
-<h1>📈 Welcome to EasyTechPack!</h1>
+<h1>\U0001f4c8 Welcome to EasyTechPack!</h1>
 <p>A <strong>tech pack</strong> is a document that tells a factory exactly how to make your clothing design. Think of it as a recipe for your garment!</p>
 <ul>
 <li><strong>Fill in your brand info</strong> at the top of the page</li>
@@ -132,7 +176,10 @@ table{display:block;overflow-x:auto}
 <p style="font-size:12px;color:#888;text-align:center">Don't worry about filling in everything perfectly.<br>You can always come back and edit later!</p>
 <button onclick="closeWelcome()">Let's Go!</button>
 </div>
-</div><div class="confirm-modal" id="confirm-modal">
+</div>"""
+
+# Confirm modal
+html += """<div class="confirm-modal" id="confirm-modal">
 <div class="confirm-box">
 <h2 id="confirm-title">Are you sure?</h2>
 <p id="confirm-msg">This cannot be undone.</p>
@@ -141,50 +188,32 @@ table{display:block;overflow-x:auto}
 <button class="btn-confirm" id="confirm-ok">Delete</button>
 </div>
 </div>
-</div><div class="toast" id="toast"></div>
-<button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+</div>"""
+
+# Toast
+html += '<div class="toast" id="toast"></div>\n'
+
+# Sidebar toggle + save indicator
+html += """<button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
 <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
 <div class="save-indicator" id="save-indicator">&#10003; Saved</div>
-<div class="sidebar">
-<div class="sidebar-header">
-<h1>&#128208; EasyTechPack</h1>
-<p>v2.1 - Clothing Tech Pack Builder</p>
-</div>
-<div class="sidebar-nav">
-<div class="nav-category">🎨 DESIGN</div>
-<div class="nav-item" data-page="cover"><span class="nav-icon">📋</span> Cover Page<span class="nav-badge" id="badge-cover"></span></div>
-<div class="nav-item" data-page="sketches"><span class="nav-icon">✏️</span> Design Sketches<span class="nav-badge" id="badge-sketches"></span></div>
-<div class="nav-item" data-page="detail-sketches"><span class="nav-icon">📐</span> Close-Up Details<span class="nav-badge" id="badge-detail-sketches"></span></div>
-<div class="nav-category">🧵 MATERIALS</div>
-<div class="nav-item" data-page="fabric-placement"><span class="nav-icon">🧵</span> Fabric List<span class="nav-badge" id="badge-fabric-placement"></span></div>
-<div class="nav-item" data-page="trims"><span class="nav-icon">✂️</span> Trims & Extras<span class="nav-badge" id="badge-trims"></span></div>
-<div class="nav-item" data-page="bom"><span class="nav-icon">🧶</span> Materials List<span class="nav-badge" id="badge-bom"></span></div>
-<div class="nav-item" data-page="colorways"><span class="nav-icon">🎨</span> Color Options<span class="nav-badge" id="badge-colorways"></span></div>
-<div class="nav-category">📏 SIZING</div>
-<div class="nav-item" data-page="measurements"><span class="nav-icon">📏</span> Measurements<span class="nav-badge" id="badge-measurements"></span></div>
-<div class="nav-item" data-page="how-to-measure"><span class="nav-icon">📐</span> How to Measure<span class="nav-badge" id="badge-how-to-measure"></span></div>
-<div class="nav-item" data-page="grading"><span class="nav-icon">📊</span> Size Chart<span class="nav-badge" id="badge-grading"></span></div>
-<div class="nav-item" data-page="grading-rules"><span class="nav-icon">📊</span> Size Differences<span class="nav-badge" id="badge-grading-rules"></span></div>
-<div class="nav-category">🔬 PRODUCTION</div>
-<div class="nav-item" data-page="construction"><span class="nav-icon">🪥</span> How It's Made<span class="nav-badge" id="badge-construction"></span></div>
-<div class="nav-item" data-page="stitch"><span class="nav-icon">🔗</span> Stitch Details<span class="nav-badge" id="badge-stitch"></span></div>
-<div class="nav-item" data-page="care-labels"><span class="nav-icon">🏷️</span> Care Instructions<span class="nav-badge" id="badge-care-labels"></span></div>
-<div class="nav-item" data-page="proto-tracking"><span class="nav-icon">🔬</span> Sample Tracking<span class="nav-badge" id="badge-proto-tracking"></span></div>
-<div class="nav-item" data-page="comments"><span class="nav-icon">💬</span> Feedback Notes<span class="nav-badge" id="badge-comments"></span></div>
-<div class="nav-category">💰 BUSINESS</div>
-<div class="nav-item" data-page="cost"><span class="nav-icon">💰</span> Cost Calculator<span class="nav-badge" id="badge-cost"></span></div>
-<div class="nav-item" data-page="labels"><span class="nav-icon">🏷️</span> Labels & Tags<span class="nav-badge" id="badge-labels"></span></div>
-<div class="nav-item" data-page="packaging"><span class="nav-icon">📦</span> Packaging<span class="nav-badge" id="badge-packaging"></span></div>
-<div class="nav-item" data-page="changelog"><span class="nav-icon">📝</span> Changes Log<span class="nav-badge" id="badge-changelog"></span></div>
-</div>
+"""
+
+# Sidebar
+html += '<div class="sidebar">\n<div class="sidebar-header">\n<h1>&#128208; EasyTechPack</h1>\n<p>v2.1 - Clothing Tech Pack Builder</p>\n</div>\n<div class="sidebar-nav">\n'
+
+for cat, page_ids in categories.items():
+    html += f'<div class="nav-category">{cat_icons.get(cat, "")} {cat}</div>\n'
+    for pid in page_ids:
+        p = page_map[pid]
+        html += f'<div class="nav-item" data-page="{pid}"><span class="nav-icon">{p[1]}</span> {p[2]}<span class="nav-badge" id="badge-{pid}"></span></div>\n'
+
+html += """</div>
 <div class="sidebar-footer">
 <div class="save-status" id="save-status">Auto-saving enabled</div>
 <button class="export-btn" onclick="exportPDF()">&#128196; Export PDF</button>
 <div class="btn-row">
-<button onclick="loadExample()">&#128218; Example</button>
-<button onclick="document.getElementById('welcome').classList.remove('hide')">&#10068; Help</button>
-</div>
-<div class="btn-row">
+<button onclick="loadExample()">&#128218; Load Example</button>
 <button onclick="newTechPack()">&#128465; New</button>
 </div>
 <div class="btn-row">
@@ -194,7 +223,10 @@ table{display:block;overflow-x:auto}
 </div>
 </div>
 </div>
-<div class="main">
+"""
+
+# Main content
+html += """<div class="main">
 <div class="topbar">
 <div class="topbar-fields">
 <div><label>Brand Name</label><br><input type="text" id="brand-name" placeholder="Your Brand" oninput="debouncedSave()"></div>
@@ -205,11 +237,44 @@ table{display:block;overflow-x:auto}
 </div>
 </div>
 <div class="page-content">
-<div class="page active" id="page-cover">
-<h2 class="page-title">Cover Page</h2>
-<p class="page-subtitle">Your brand info and logo - START HERE</p>
-<div class="page-tip">Start here! Fill in your brand name and logo. This is the first page anyone sees in your tech pack.</div>
-<div class="cover-box">
+"""
+
+# Page tips (plain language guidance)
+tips = {
+    "cover": "Start here! Fill in your brand name and logo. This is the first page anyone sees in your tech pack.",
+    "sketches": "Draw your garment on paper (front, back, side views), take a photo with your phone, and upload it here. Black and white drawings work best!",
+    "fabric-placement": "List every fabric you'll use and where it goes on the garment. For example: 'Cotton jersey' on the 'Body', 'Rib knit' on the 'Cuffs'.",
+    "trims": "List all the extras: zippers, buttons, labels, drawstrings, elastic. Add photos if you have them so the factory knows exactly what you want.",
+    "bom": "This is your complete shopping list. Everything the factory needs to buy to make your garment. Check your sketches to make sure you didn't miss anything!",
+    "measurements": "The actual numbers for your garment. Tip: take measurements from a similar garment you already own that fits well!",
+    "construction": "General notes about how the garment is sewn together. For example: 'Side seams should be flatlocked' or 'Hood is lined'.",
+    "stitch": "The specific stitches used. Don't worry if you don't know stitch types - just describe what you see on similar garments you like.",
+    "detail-sketches": "Upload close-up drawings of tricky areas: pocket construction, zipper details, seam finishes. The more detail, the better!",
+    "how-to-measure": "Diagrams showing exactly WHERE to measure. This helps the factory measure the same way you do.",
+    "care-labels": "The washing instructions that go on the label inside your garment. You can usually get these from your fabric supplier.",
+    "grading": "Your garment in different sizes. Start with one size (like M) and then figure out the measurements for other sizes.",
+    "grading-rules": "How much each measurement changes between sizes. For example: chest might grow 2cm from M to L. Ask your factory for help!",
+    "proto-tracking": "When the factory makes a sample, you check it and note what needs to change. Track each round of samples here.",
+    "comments": "Write down everything that needs fixing after you check a sample. Separate pattern changes (sizing) from sewing changes (construction).",
+    "cost": "Add up all your material costs to see how much each piece costs to make. This helps you set your selling price.",
+    "colorways": "List all the colors your garment will come in. You can use the color picker or enter Pantone codes if you have them.",
+    "labels": "Your brand label, size tag, and care label. Note where each one goes and what it looks like.",
+    "packaging": "How the garment is packed: poly bag, hang tag, box. Include any special instructions.",
+    "changelog": "Keep a record of all changes you make. This helps when working with factories!",
+}
+
+# Generate pages
+for i, (pid, icon, title, desc) in enumerate(pages):
+    active = ' active' if i == 0 else ''
+    html += f'<div class="page{active}" id="page-{pid}">\n'
+    html += f'<h2 class="page-title">{title}</h2>\n'
+    html += f'<p class="page-subtitle">{desc}</p>\n'
+    if pid in tips:
+        html += f'<div class="page-tip">{tips[pid]}</div>\n'
+    
+    # Page-specific content
+    if pid == "cover":
+        html += '''<div class="cover-box">
 <div class="logo-upload">
 <div class="logo-preview" id="logo-preview" onclick="document.getElementById('logo-input').click()"><span>Click to upload logo</span></div>
 <input type="file" id="logo-input" accept="image/*" onchange="handleLogo(this)" style="display:none">
@@ -217,197 +282,69 @@ table{display:block;overflow-x:auto}
 <div class="cover-row"><label>Designer Name</label><input type="text" id="designer-name" placeholder="Your name" oninput="debouncedSave()"></div>
 <div class="cover-row"><label>Season</label><input type="text" id="season" placeholder="e.g. Spring 2026" oninput="debouncedSave()"></div>
 <div class="cover-row"><label>Description</label><textarea id="style-desc" placeholder="Describe your garment..." oninput="debouncedSave()"></textarea></div>
-</div><div class="page-num" id="page-num-cover"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
-</div>
-<div class="page" id="page-sketches">
-<h2 class="page-title">Design Sketches</h2>
-<p class="page-subtitle">Upload drawings of your garment from different angles</p>
-<div class="page-tip">Draw your garment on paper (front, back, side views), take a photo with your phone, and upload it here. Black and white drawings work best!</div>
-<div class="sketch-grid" id="sketch-grid"></div>
-<button class="add-row" onclick="addSketch('sketches')">+ Add Sketch</button>
-<div class="page-num" id="page-num-sketches"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
-</div>
-<div class="page" id="page-fabric-placement">
-<h2 class="page-title">Fabric List</h2>
-<p class="page-subtitle">What fabrics you need and where each one goes</p>
-<div class="page-tip">List every fabric you'll use and where it goes on the garment. For example: 'Cotton jersey' on the 'Body', 'Rib knit' on the 'Cuffs'.</div>
-<table><thead><tr><th>Fabric Name<span class="tip">e.g. Cotton Jersey</span></th><th>Description<span class="tip">Weight, stretch, etc.</span></th><th>Color<span class="tip">Color name or Pantone code</span></th><th>Location<span class="tip">Where on the garment</span></th><th>Notes</th><th></th></tr></thead><tbody id="fab-body"></tbody></table>
-<button class="add-row" onclick="addRow('fab')">+ Add Fabric</button>
-<div class="page-num" id="page-num-fabric-placement"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
-</div>
-<div class="page" id="page-trims">
-<h2 class="page-title">Trims & Extras</h2>
-<p class="page-subtitle">Zippers, buttons, labels, and other supplies</p>
-<div class="page-tip">List all the extras: zippers, buttons, labels, drawstrings, elastic. Add photos if you have them so the factory knows exactly what you want.</div>
-<table><thead><tr><th>Type<span class="tip">Zipper, button, label, etc.</span></th><th>Description</th><th>Supplier</th><th>Color</th><th>Size</th><th>Placement<span class="tip">Where on garment</span></th><th></th></tr></thead><tbody id="trim-body"></tbody></table>
-<button class="add-row" onclick="addRow('trim')">+ Add Trim</button>
-<div class="page-num" id="page-num-trims"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
-</div>
-<div class="page" id="page-bom">
-<h2 class="page-title">Materials List</h2>
-<p class="page-subtitle">Complete list of everything needed to make this garment</p>
-<div class="page-tip">This is your complete shopping list. Everything the factory needs to buy to make your garment. Check your sketches to make sure you didn't miss anything!</div>
-<table><thead><tr><th>Material<span class="tip">What it is</span></th><th>Description</th><th>Color/Pantone</th><th>Supplier</th><th>Width</th><th>Qty Needed</th><th>Unit<span class="tip">yards, meters, pcs</span></th><th></th></tr></thead><tbody id="bom-body"></tbody></table>
-<button class="add-row" onclick="addRow('bom')">+ Add Material</button>
-<div class="page-num" id="page-num-bom"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
-</div>
-<div class="page" id="page-measurements">
-<h2 class="page-title">Measurements</h2>
-<p class="page-subtitle">The actual sizes and dimensions for your garment</p>
-<div class="page-tip">The actual numbers for your garment. Tip: take measurements from a similar garment you already own that fits well!</div>
-<table><thead><tr><th>Measurement Point<span class="tip">e.g. Chest, Length, Sleeve</span></th><th>Sample Size<span class="tip">e.g. M, L</span></th><th>Measurement<span class="tip">The actual number</span></th><th>Tolerance<span class="tip">Acceptable +/- variation</span></th><th>Unit<span class="tip">inches or cm</span></th><th></th></tr></thead><tbody id="meas-body"></tbody></table>
-<button class="add-row" onclick="addRow('meas')">+ Add Measurement</button>
-<div class="page-num" id="page-num-measurements"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
-</div>
-<div class="page" id="page-construction">
-<h2 class="page-title">How It's Made</h2>
-<p class="page-subtitle">Notes on how the pieces are sewn together</p>
-<div class="page-tip">General notes about how the garment is sewn together. For example: 'Side seams should be flatlocked' or 'Hood is lined'.</div>
-<table><thead><tr><th>Area/Component<span class="tip">e.g. Side seam, Collar</span></th><th>Seam Type</th><th>Notes</th><th></th></tr></thead><tbody id="const-body"></tbody></table>
-<button class="add-row" onclick="addRow('const')">+ Add Note</button>
-<div class="page-num" id="page-num-construction"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
-</div>
-<div class="page" id="page-stitch">
-<h2 class="page-title">Stitch Details</h2>
-<p class="page-subtitle">What stitches to use and where</p>
-<div class="page-tip">The specific stitches used. Don't worry if you don't know stitch types - just describe what you see on similar garments you like.</div>
-<table><thead><tr><th>Area</th><th>Stitch Type</th><th>SPI<span class="tip">Stitches Per Inch - how tight the stitch is</span></th><th>Seam Allowance<span class="tip">Extra fabric beyond stitch line</span></th><th>Construction</th><th>Notes</th><th></th></tr></thead><tbody id="stitch-body"></tbody></table>
-<button class="add-row" onclick="addRow('stitch')">+ Add Stitch Detail</button>
-<div class="page-num" id="page-num-stitch"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
-</div>
-<div class="page" id="page-detail-sketches">
-<h2 class="page-title">Close-Up Details</h2>
-<p class="page-subtitle">Zoomed-in drawings of tricky construction areas</p>
-<div class="page-tip">Upload close-up drawings of tricky areas: pocket construction, zipper details, seam finishes. The more detail, the better!</div>
-<div class="sketch-grid" id="detail-grid"></div>
-<button class="add-row" onclick="addSketch('details')">+ Add Detail Sketch</button>
-<div class="page-num" id="page-num-detail-sketches"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
-</div>
-<div class="page" id="page-how-to-measure">
-<h2 class="page-title">How to Measure</h2>
-<p class="page-subtitle">Diagrams showing WHERE to measure on the garment</p>
-<div class="page-tip">Diagrams showing exactly WHERE to measure. This helps the factory measure the same way you do.</div>
-<div class="sketch-grid" id="htm-grid"></div>
-<table><thead><tr><th>Measurement Point<span class="tip">What you're measuring</span></th><th>Start Point<span class="tip">Where the tape starts</span></th><th>End Point<span class="tip">Where the tape ends</span></th><th>How to Measure<span class="tip">Describe the method</span></th><th></th></tr></thead><tbody id="htm-body"></tbody></table>
-<button class="add-row" onclick="addRow('htm')">+ Add Measurement Method</button>
-<div class="page-num" id="page-num-how-to-measure"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
-</div>
-<div class="page" id="page-care-labels">
-<h2 class="page-title">Care Instructions</h2>
-<p class="page-subtitle">Washing, drying, and ironing instructions for the label</p>
-<div class="page-tip">The washing instructions that go on the label inside your garment. You can usually get these from your fabric supplier.</div>
-<table><thead><tr><th>Care Category<span class="tip">Wash, Dry, Iron, etc.</span></th><th>Instruction<span class="tip">e.g. Machine wash cold, tumble dry low</span></th><th>Language</th><th>Notes</th><th></th></tr></thead><tbody id="care-body"></tbody></table>
-<button class="add-row" onclick="addRow('care')">+ Add Care Instruction</button>
-<div class="page-num" id="page-num-care-labels"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
-</div>
-<div class="page" id="page-grading">
-<h2 class="page-title">Size Chart</h2>
-<p class="page-subtitle">Measurements for each size (XS, S, M, L, XL)</p>
-<div class="page-tip">Your garment in different sizes. Start with one size (like M) and then figure out the measurements for other sizes.</div>
-<div style="overflow-x:auto"><table><thead><tr><th>Measurement Point</th><th>XS</th><th>S</th><th>M</th><th>L</th><th>XL</th><th></th></tr></thead><tbody id="grade-body"></tbody></table></div>
-<button class="add-row" onclick="addRow('grade')">+ Add Size</button>
-<div class="page-num" id="page-num-grading"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
-</div>
-<div class="page" id="page-grading-rules">
-<h2 class="page-title">Size Differences</h2>
-<p class="page-subtitle">How much each measurement changes between sizes</p>
-<div class="page-tip">How much each measurement changes between sizes. For example: chest might grow 2cm from M to L. Ask your factory for help!</div>
-<div class="page-tip">Grading rules = how much each measurement changes between sizes. Example: if chest goes up 2cm from S to M, the rule is +2.</div>
-<table><thead><tr><th>Measurement</th><th>XS to S<span class="tip">Change</span></th><th>S to M</th><th>M to L</th><th>L to XL</th><th>XL to XXL</th><th>Notes</th><th></th></tr></thead><tbody id="grule-body"></tbody></table>
-<button class="add-row" onclick="addRow('grule')">+ Add Rule</button>
-<div class="page-num" id="page-num-grading-rules"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
-</div>
-<div class="page" id="page-proto-tracking">
-<h2 class="page-title">Sample Tracking</h2>
-<p class="page-subtitle">Track how each sample version matches your design</p>
-<div class="page-tip">When the factory makes a sample, you check it and note what needs to change. Track each round of samples here.</div>
-<div class="page-tip"><strong>Sample Tracking:</strong> When the factory sends you a sample garment, you check it and record the actual measurements. P1 = 1st sample, P2 = 2nd sample (after changes), PPS = final pre-production sample.</div>
-<table><thead><tr><th>Measurement</th><th>Your Spec<span class="tip">What you want</span></th><th>P1 Actual<span class="tip">1st sample measurement</span></th><th>P1 Notes</th><th>P2 Actual</th><th>P2 Notes</th><th>PPS Final</th><th>Tolerance<span class="tip">OK range +/-</span></th><th>Status</th><th></th></tr></thead><tbody id="proto-body"></tbody></table>
-<button class="add-row" onclick="addRow('proto')">+ Add Point</button>
-<div class="page-num" id="page-num-proto-tracking"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
-</div>
-<div class="page" id="page-comments">
-<h2 class="page-title">Feedback Notes</h2>
-<p class="page-subtitle">Notes and changes for each sample round</p>
-<div class="page-tip">Write down everything that needs fixing after you check a sample. Separate pattern changes (sizing) from sewing changes (construction).</div>
-<div class="comments-section"><h3>📈 Pattern/Sizing Changes</h3>
+</div>'''
+    elif pid == "sketches":
+        html += '<div class="sketch-grid" id="sketch-grid"></div>\n<button class="add-row" onclick="addSketch(\'sketches\')">+ Add Sketch</button>\n'
+    elif pid == "detail-sketches":
+        html += '<div class="sketch-grid" id="detail-grid"></div>\n<button class="add-row" onclick="addSketch(\'details\')">+ Add Detail Sketch</button>\n'
+    elif pid == "how-to-measure":
+        html += '<div class="sketch-grid" id="htm-grid"></div>\n<table><thead><tr><th>Measurement Point<span class="tip">What you\'re measuring</span></th><th>Start Point<span class="tip">Where the tape starts</span></th><th>End Point<span class="tip">Where the tape ends</span></th><th>How to Measure<span class="tip">Describe the method</span></th><th></th></tr></thead><tbody id="htm-body"></tbody></table>\n<button class="add-row" onclick="addRow(\'htm\')">+ Add Measurement Method</button>\n'
+    elif pid == "fabric-placement":
+        html += '<table><thead><tr><th>Fabric Name<span class="tip">e.g. Cotton Jersey</span></th><th>Description<span class="tip">Weight, stretch, etc.</span></th><th>Color<span class="tip">Color name or Pantone code</span></th><th>Location<span class="tip">Where on the garment</span></th><th>Notes</th><th></th></tr></thead><tbody id="fab-body"></tbody></table>\n<button class="add-row" onclick="addRow(\'fab\')">+ Add Fabric</button>\n'
+    elif pid == "trims":
+        html += '<table><thead><tr><th>Type<span class="tip">Zipper, button, label, etc.</span></th><th>Description</th><th>Supplier</th><th>Color</th><th>Size</th><th>Placement<span class="tip">Where on garment</span></th><th></th></tr></thead><tbody id="trim-body"></tbody></table>\n<button class="add-row" onclick="addRow(\'trim\')">+ Add Trim</button>\n'
+    elif pid == "bom":
+        html += '<table><thead><tr><th>Material<span class="tip">What it is</span></th><th>Description</th><th>Color/Pantone</th><th>Supplier</th><th>Width</th><th>Qty Needed</th><th>Unit<span class="tip">yards, meters, pcs</span></th><th></th></tr></thead><tbody id="bom-body"></tbody></table>\n<button class="add-row" onclick="addRow(\'bom\')">+ Add Material</button>\n'
+    elif pid == "measurements":
+        html += '<table><thead><tr><th>Measurement Point<span class="tip">e.g. Chest, Length, Sleeve</span></th><th>Sample Size<span class="tip">e.g. M, L</span></th><th>Measurement<span class="tip">The actual number</span></th><th>Tolerance<span class="tip">Acceptable +/- variation</span></th><th>Unit<span class="tip">inches or cm</span></th><th></th></tr></thead><tbody id="meas-body"></tbody></table>\n<button class="add-row" onclick="addRow(\'meas\')">+ Add Measurement</button>\n'
+    elif pid == "construction":
+        html += '<table><thead><tr><th>Area/Component<span class="tip">e.g. Side seam, Collar</span></th><th>Seam Type</th><th>Notes</th><th></th></tr></thead><tbody id="const-body"></tbody></table>\n<button class="add-row" onclick="addRow(\'const\')">+ Add Note</button>\n'
+    elif pid == "stitch":
+        html += '<table><thead><tr><th>Area</th><th>Stitch Type</th><th>SPI<span class="tip">Stitches Per Inch - how tight the stitch is</span></th><th>Seam Allowance<span class="tip">Extra fabric beyond stitch line</span></th><th>Construction</th><th>Notes</th><th></th></tr></thead><tbody id="stitch-body"></tbody></table>\n<button class="add-row" onclick="addRow(\'stitch\')">+ Add Stitch Detail</button>\n'
+    elif pid == "care-labels":
+        html += '<table><thead><tr><th>Care Category<span class="tip">Wash, Dry, Iron, etc.</span></th><th>Instruction<span class="tip">e.g. Machine wash cold, tumble dry low</span></th><th>Language</th><th>Notes</th><th></th></tr></thead><tbody id="care-body"></tbody></table>\n<button class="add-row" onclick="addRow(\'care\')">+ Add Care Instruction</button>\n'
+    elif pid == "grading":
+        html += '<div style="overflow-x:auto"><table><thead><tr><th>Measurement Point</th><th>XS</th><th>S</th><th>M</th><th>L</th><th>XL</th><th></th></tr></thead><tbody id="grade-body"></tbody></table></div>\n<button class="add-row" onclick="addRow(\'grade\')">+ Add Size</button>\n'
+    elif pid == "grading-rules":
+        html += '<div class="page-tip">Grading rules = how much each measurement changes between sizes. Example: if chest goes up 2cm from S to M, the rule is +2.</div>\n<table><thead><tr><th>Measurement</th><th>XS to S<span class="tip">Change</span></th><th>S to M</th><th>M to L</th><th>L to XL</th><th>XL to XXL</th><th>Notes</th><th></th></tr></thead><tbody id="grule-body"></tbody></table>\n<button class="add-row" onclick="addRow(\'grule\')">+ Add Rule</button>\n'
+    elif pid == "proto-tracking":
+        html += '<div class="page-tip"><strong>Sample Tracking:</strong> When the factory sends you a sample garment, you check it and record the actual measurements. P1 = 1st sample, P2 = 2nd sample (after changes), PPS = final pre-production sample.</div>\n<table><thead><tr><th>Measurement</th><th>Your Spec<span class="tip">What you want</span></th><th>P1 Actual<span class="tip">1st sample measurement</span></th><th>P1 Notes</th><th>P2 Actual</th><th>P2 Notes</th><th>PPS Final</th><th>Tolerance<span class="tip">OK range +/-</span></th><th>Status</th><th></th></tr></thead><tbody id="proto-body"></tbody></table>\n<button class="add-row" onclick="addRow(\'proto\')">+ Add Point</button>\n'
+    elif pid == "comments":
+        html += '''<div class="comments-section"><h3>\U0001f4c8 Pattern/Sizing Changes</h3>
 <p class="page-tip" style="margin-bottom:12px">Changes to measurements, fit, or proportions. These go to the pattern maker.</p>
 <table><thead><tr><th>Date</th><th>Sample #<span class="tip">Which sample round</span></th><th>What Needs to Change</th><th>What Was Done</th><th>Status</th><th></th></tr></thead><tbody id="pattern-body"></tbody></table>
-<button class="add-row" onclick="addRow('pattern')">+ Add Note</button>
+<button class="add-row" onclick="addRow(\'pattern\')">+ Add Note</button>
 </div>
-<div class="comments-section"><h3>🪚 Sewing/Construction Changes</h3>
+<div class="comments-section"><h3>\U0001fa9a Sewing/Construction Changes</h3>
 <p class="page-tip" style="margin-bottom:12px">Changes to stitching, seams, or construction details. These go to the sewing team.</p>
 <table><thead><tr><th>Date</th><th>Sample #</th><th>What Needs to Change</th><th>What Was Done</th><th>Status</th><th></th></tr></thead><tbody id="sewing-body"></tbody></table>
-<button class="add-row" onclick="addRow('sewing')">+ Add Note</button>
-</div><div class="page-num" id="page-num-comments"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
-</div>
-<div class="page" id="page-cost">
-<h2 class="page-title">Cost Calculator</h2>
-<p class="page-subtitle">How much each piece costs to make</p>
-<div class="page-tip">Add up all your material costs to see how much each piece costs to make. This helps you set your selling price.</div>
-<table><thead><tr><th>Item<span class="tip">Fabric, zipper, labor, etc.</span></th><th>Cost per Unit ($)<span class="tip">Price per piece/yard</span></th><th>Qty Needed</th><th>Subtotal</th><th>Notes</th><th></th></tr></thead><tbody id="cost-body"></tbody></table>
-<button class="add-row" onclick="addRow('cost')">+ Add Cost Item</button>
-<div style="margin-top:16px;background:#fff;border-radius:8px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.08);display:inline-block"><strong>Total cost per garment: $<span id="cost-total">0.00</span></strong></div>
-<div class="page-num" id="page-num-cost"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
-</div>
-<div class="page" id="page-colorways">
-<h2 class="page-title">Color Options</h2>
-<p class="page-subtitle">All the colors this garment will come in</p>
-<div class="page-tip">List all the colors your garment will come in. You can use the color picker or enter Pantone codes if you have them.</div>
-<table><thead><tr><th>Color Name<span class="tip">e.g. Midnight Blue</span></th><th>Pantone Code<span class="tip">Optional - e.g. 19-4024</span></th><th>Color Picker</th><th>Notes</th><th></th></tr></thead><tbody id="color-body"></tbody></table>
-<button class="add-row" onclick="addRow('color')">+ Add Color</button>
-<div class="page-num" id="page-num-colorways"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
-</div>
-<div class="page" id="page-labels">
-<h2 class="page-title">Labels & Tags</h2>
-<p class="page-subtitle">Brand labels, size tags, and hang tags</p>
-<div class="page-tip">Your brand label, size tag, and care label. Note where each one goes and what it looks like.</div>
-<table><thead><tr><th>Label Type<span class="tip">Main label, size tag, care label</span></th><th>Placement<span class="tip">Where on garment</span></th><th>Size<span class="tip">Dimensions of label</span></th><th>Material<span class="tip">Woven, printed, etc.</span></th><th>Attachment<span class="tip">Sewn in, heat transfer, etc.</span></th><th></th></tr></thead><tbody id="label-body"></tbody></table>
-<button class="add-row" onclick="addRow('label')">+ Add Label</button>
-<div class="page-num" id="page-num-labels"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
-</div>
-<div class="page" id="page-packaging">
-<h2 class="page-title">Packaging</h2>
-<p class="page-subtitle">How the garment is packed and shipped</p>
-<div class="page-tip">How the garment is packed: poly bag, hang tag, box. Include any special instructions.</div>
-<table><thead><tr><th>Item<span class="tip">Poly bag, hang tag, box, etc.</span></th><th>Material</th><th>Size/Dimensions</th><th>Qty per Garment</th><th>Notes</th><th></th></tr></thead><tbody id="pack-body"></tbody></table>
-<button class="add-row" onclick="addRow('pack')">+ Add Item</button>
-<div class="page-num" id="page-num-packaging"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
-</div>
-<div class="page" id="page-changelog">
-<h2 class="page-title">Changes Log</h2>
-<p class="page-subtitle">Keep track of all edits and updates</p>
-<div class="page-tip">Keep a record of all changes you make. This helps when working with factories!</div>
-<table><thead><tr><th>Date</th><th>Version</th><th>What Changed</th><th>Who Changed It</th><th>Status</th><th></th></tr></thead><tbody id="log-body"></tbody></table>
-<button class="add-row" onclick="addRow('log')">+ Add Entry</button>
-<div class="page-num" id="page-num-changelog"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
-</div>
-</div></div>
+<button class="add-row" onclick="addRow(\'sewing\')">+ Add Note</button>
+</div>'''
+    elif pid == "cost":
+        html += '<table><thead><tr><th>Item<span class="tip">Fabric, zipper, labor, etc.</span></th><th>Cost per Unit ($)<span class="tip">Price per piece/yard</span></th><th>Qty Needed</th><th>Subtotal</th><th>Notes</th><th></th></tr></thead><tbody id="cost-body"></tbody></table>\n<button class="add-row" onclick="addRow(\'cost\')">+ Add Cost Item</button>\n<div style="margin-top:16px;background:#fff;border-radius:8px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.08);display:inline-block"><strong>Total cost per garment: $<span id="cost-total">0.00</span></strong></div>\n'
+    elif pid == "colorways":
+        html += '<table><thead><tr><th>Color Name<span class="tip">e.g. Midnight Blue</span></th><th>Pantone Code<span class="tip">Optional - e.g. 19-4024</span></th><th>Color Picker</th><th>Notes</th><th></th></tr></thead><tbody id="color-body"></tbody></table>\n<button class="add-row" onclick="addRow(\'color\')">+ Add Color</button>\n'
+    elif pid == "labels":
+        html += '<table><thead><tr><th>Label Type<span class="tip">Main label, size tag, care label</span></th><th>Placement<span class="tip">Where on garment</span></th><th>Size<span class="tip">Dimensions of label</span></th><th>Material<span class="tip">Woven, printed, etc.</span></th><th>Attachment<span class="tip">Sewn in, heat transfer, etc.</span></th><th></th></tr></thead><tbody id="label-body"></tbody></table>\n<button class="add-row" onclick="addRow(\'label\')">+ Add Label</button>\n'
+    elif pid == "packaging":
+        html += '<table><thead><tr><th>Item<span class="tip">Poly bag, hang tag, box, etc.</span></th><th>Material</th><th>Size/Dimensions</th><th>Qty per Garment</th><th>Notes</th><th></th></tr></thead><tbody id="pack-body"></tbody></table>\n<button class="add-row" onclick="addRow(\'pack\')">+ Add Item</button>\n'
+    elif pid == "changelog":
+        html += '<table><thead><tr><th>Date</th><th>Version</th><th>What Changed</th><th>Who Changed It</th><th>Status</th><th></th></tr></thead><tbody id="log-body"></tbody></table>\n<button class="add-row" onclick="addRow(\'log\')">+ Add Entry</button>\n'
+    
+    html += f'<div class="page-num" id="page-num-{pid}"></div>\n'
+    html += f'<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>\n'
+    html += '</div>\n'
+
+# Export overlay
+html += """</div></div>
 <div class="export-overlay" id="export-overlay">
 <div class="export-box"><div class="spinner"></div><h2>Generating PDF...</h2><p id="export-status">Rendering...</p></div>
 </div>
 <script>
+"""
 
+# JavaScript
+html += r"""
 function eH(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 const SK='easytechpack_v2_1',MI=400;
 function gS(){try{return JSON.parse(localStorage.getItem(SK))||{}}catch(e){return{}}}
@@ -486,9 +423,6 @@ const td=document.createElement('td');td.innerHTML='<button class="del-btn" oncl
 function addRow(t){const d={fab:{name:'',desc:'',color:'',location:'Body',notes:''},trim:{type:'Zipper',desc:'',supplier:'',color:'',size:'',placement:''},bom:{material:'',desc:'',color:'',supplier:'',width:'',qty:'',unit:''},meas:{point:'',size:'',meas:'',tol:'',unit:''},const:{area:'',seam:'Plain',notes:''},stitch:{area:'',type:'Single Needle',spi:'',allowance:'',construction:'Plain',notes:''},htm:{point:'',start:'',end:'',method:''},care:{type:'Wash',instruction:'',language:'EN',notes:''},grade:{point:'',xs:'',s:'',m:'',l:'',xl:''},grule:{point:'',xs_s:'',s_m:'',m_l:'',l_xl:'',xl_xxl:'',notes:''},proto:{point:'',spec:'',p1:'',p1c:'',p2:'',p2c:'',pps:'',tol:'',status:'Pending'},pattern:{date:new Date().toISOString().split('T')[0],proto:'1',comment:'',action:'',status:'Pending'},sewing:{date:new Date().toISOString().split('T')[0],proto:'1',comment:'',action:'',status:'Pending'},cost:{component:'',cost:'',qty:'',notes:''},color:{name:'',pantone:'',swatch:'#000000',notes:''},label:{type:'',placement:'',dimensions:'',material:'',attachment:''},pack:{item:'',material:'',dimensions:'',qty:'',notes:''},log:{date:new Date().toISOString().split('T')[0],version:'',change:'',by:'',status:'Pending'}};const r=gSt(t);r.push({...d[t]});sSt(t,r);renderAll();toast('Row added','info')}
 function dR(t,i){showConfirm('Delete this row?','This will remove the data permanently.',()=>{const r=gSt(t);r.splice(i,1);sSt(t,r);renderAll();toast('Row deleted','info')})}
 function uF(t,i,k,v){const r=gSt(t);if(r[i])r[i][k]=v;sSt(t,r)}
-window._dirty=false;
-function markDirty(){window._dirty=true}
-window.addEventListener('beforeunload',function(e){if(window._dirty){e.preventDefault();e.returnValue=''}});
 
 // Sketches
 function addSketch(t){const k=t==='sketches'?'sketches':'details';const r=gSt(k);r.push({image:'',label:'',notes:''});sSt(k,r);renderSketches(t)}
@@ -513,7 +447,7 @@ renderTable('grule-body',[{k:'point',p:'Measurement',fn:'uF',s:'grule'},{k:'xs_s
 renderTable('proto-body',[{k:'point',p:'Measurement',fn:'uF',s:'proto'},{k:'spec',p:'What you want',fn:'uF',s:'proto'},{k:'p1',p:'1st sample',fn:'uF',s:'proto'},{k:'p1c',p:'Notes',fn:'uF',s:'proto'},{k:'p2',p:'2nd sample',fn:'uF',s:'proto'},{k:'p2c',p:'Notes',fn:'uF',s:'proto'},{k:'pps',p:'Final',fn:'uF',s:'proto'},{k:'tol',p:'+/-',fn:'uF',s:'proto'},{k:'status',p:'',fn:'uF',s:'proto',type:'select',opts:['Pending','Received','Approved','Rejected']}],gSt('proto'));
 renderTable('pattern-body',[{k:'date',p:'Date',fn:'uF',s:'pattern'},{k:'proto',p:'1, 2, PPS',fn:'uF',s:'pattern'},{k:'comment',p:'What needs changing',fn:'uF',s:'pattern',type:'textarea'},{k:'action',p:'What was done',fn:'uF',s:'pattern',type:'textarea'},{k:'status',p:'',fn:'uF',s:'pattern',type:'select',opts:['Pending','In Progress','Done']}],gSt('pattern'));
 renderTable('sewing-body',[{k:'date',p:'Date',fn:'uF',s:'sewing'},{k:'proto',p:'1, 2, PPS',fn:'uF',s:'sewing'},{k:'comment',p:'What needs changing',fn:'uF',s:'sewing',type:'textarea'},{k:'action',p:'What was done',fn:'uF',s:'sewing',type:'textarea'},{k:'status',p:'',fn:'uF',s:'sewing',type:'select',opts:['Pending','In Progress','Done']}],gSt('sewing'));
-const ct=document.getElementById('cost-body');if(ct){const r=gSt('cost');ct.innerHTML='';r.forEach((x,i)=>{const sub=(parseFloat(x.cost)||0)*(parseInt(x.qty)||0);const tr=document.createElement('tr');tr.innerHTML='<td><input value="'+eH(x.component||'')+'" placeholder="e.g. Fabric" oninput="uF(\'cost\','+i+',\'component\',this.value);markDirty()"></td><td><input value="'+eH(x.cost||'')+'" placeholder="0.00" type="number" step="0.01" min="0" oninput="uF(\'cost\','+i+',\'cost\',this.value);markDirty()"></td><td><input value="'+eH(x.qty||'')+'" placeholder="1" type="number" min="0" oninput="uF(\'cost\','+i+',\'qty\',this.value);markDirty()"></td><td>$'+sub.toFixed(2)+'</td><td><input value="'+eH(x.notes||'')+'" placeholder="Notes" oninput="uF(\'cost\','+i+',\'notes\',this.value);markDirty()"></td><td><button class="del-btn" onclick="dR(\'cost\','+i+')">&times;</button></td>';ct.appendChild(tr)});calcCost()}
+const ct=document.getElementById('cost-body');if(ct){const r=gSt('cost');ct.innerHTML='';r.forEach((x,i)=>{const sub=(parseFloat(x.cost)||0)*(parseInt(x.qty)||0);const tr=document.createElement('tr');tr.innerHTML='<td><input value="'+eH(x.component||'')+'" placeholder="e.g. Fabric" oninput="uF(\'cost\','+i+',\'component\',this.value)"></td><td><input value="'+eH(x.cost||'')+'" placeholder="0.00" type="number" step="0.01" oninput="uF(\'cost\','+i+',\'cost\',this.value)"></td><td><input value="'+eH(x.qty||'')+'" placeholder="1" type="number" oninput="uF(\'cost\','+i+',\'qty\',this.value)"></td><td>$'+sub.toFixed(2)+'</td><td><input value="'+eH(x.notes||'')+'" placeholder="Notes" oninput="uF(\'cost\','+i+',\'notes\',this.value)"></td><td><button class="del-btn" onclick="dR(\'cost\','+i+')">&times;</button></td>';ct.appendChild(tr)});calcCost()}
 renderColor();
 renderTable('label-body',[{k:'type',p:'e.g. Main label',fn:'uF',s:'label'},{k:'placement',p:'Center back neck',fn:'uF',s:'label'},{k:'dimensions',p:'5cm x 2cm',fn:'uF',s:'label'},{k:'material',p:'Woven/Printed',fn:'uF',s:'label'},{k:'attachment',p:'Sewn in',fn:'uF',s:'label'}],gSt('label'));
 renderTable('pack-body',[{k:'item',p:'e.g. Poly bag',fn:'uF',s:'pack'},{k:'material',p:'Clear PE',fn:'uF',s:'pack'},{k:'dimensions',p:'12" x 16"',fn:'uF',s:'pack'},{k:'qty',p:'1',fn:'uF',s:'pack'},{k:'notes',p:'Notes',fn:'uF',s:'pack'}],gSt('pack'));
@@ -540,3 +474,8 @@ ov.classList.remove('show')}
 function init(){loadAll();renderAll();if(!document.getElementById('pack-date').value){document.getElementById('pack-date').value=new Date().toISOString().split('T')[0];saveAll()}}
 init();
 </script></body></html>
+"""
+
+with open(OUT, 'w') as f:
+    f.write(html)
+print(f"Written {len(html)} bytes to {OUT}")
