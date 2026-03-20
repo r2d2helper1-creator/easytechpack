@@ -3,69 +3,76 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EasyTechPack v2</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"><\/script>
+<title>EasyTechPack v2.1</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f5f5;color:#222;display:flex;height:100vh;overflow:hidden}
-.sidebar{width:240px;background:#1a1a2e;color:#fff;display:flex;flex-direction:column;flex-shrink:0;z-index:100}
+.sidebar{width:250px;background:#1a1a2e;color:#fff;display:flex;flex-direction:column;flex-shrink:0;z-index:100}
 .sidebar-header{padding:20px;border-bottom:1px solid #333}
 .sidebar-header h1{font-size:18px;font-weight:700;letter-spacing:-.5px}
 .sidebar-header p{font-size:11px;color:#888;margin-top:4px}
-.sidebar-nav{flex:1;overflow-y:auto;padding:10px 0}
-.nav-item{padding:10px 20px;cursor:pointer;font-size:13px;color:#aaa;transition:all .15s;display:flex;align-items:center;gap:10px}
+.sidebar-nav{flex:1;overflow-y:auto;padding:8px 0}
+.nav-category{padding:8px 20px 4px;font-size:10px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:1px}
+.nav-item{padding:9px 20px 9px 28px;cursor:pointer;font-size:13px;color:#aaa;transition:all .15s;display:flex;align-items:center;gap:8px}
 .nav-item:hover{background:#16213e;color:#fff}
 .nav-item.active{background:#0f3460;color:#fff;border-left:3px solid #e94560}
-.nav-icon{width:18px;text-align:center;font-size:13px}
+.nav-item .nav-badge{margin-left:auto;font-size:9px;background:#333;padding:1px 6px;border-radius:8px;color:#888}
+.nav-item.has-data .nav-badge{background:#0f3460;color:#4caf50}
+.nav-icon{width:16px;text-align:center;font-size:13px}
 .sidebar-footer{padding:15px 20px;border-top:1px solid #333}
+.sidebar-footer .save-status{font-size:10px;color:#4caf50;margin-bottom:8px;text-align:center}
+.export-btn{width:100%;padding:10px;background:#e94560;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:6px}
+.export-btn:hover{background:#c73b54}
+.btn-row{display:flex;gap:6px;margin-bottom:6px}
+.btn-row button{flex:1;padding:7px;background:transparent;color:#888;border:1px solid #444;border-radius:6px;font-size:11px;cursor:pointer}
+.btn-row button:hover{color:#fff;border-color:#888}
 .menu-toggle{display:none;position:fixed;top:12px;left:12px;z-index:200;background:#1a1a2e;color:#fff;border:none;border-radius:6px;padding:8px 12px;font-size:18px;cursor:pointer}
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
-.export-btn{width:100%;padding:10px;background:#e94560;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:8px}
-.export-btn:hover{background:#c73b54}.export-btn:disabled{background:#666;cursor:not-allowed}
-.new-btn{width:100%;padding:8px;background:transparent;color:#888;border:1px solid #444;border-radius:6px;font-size:12px;cursor:pointer}
-.new-btn:hover{color:#fff;border-color:#888}
-.save-indicator{position:fixed;top:12px;right:20px;font-size:11px;color:#4caf50;opacity:0;transition:opacity .3s;z-index:50}
+.save-indicator{position:fixed;top:12px;right:20px;font-size:11px;color:#4caf50;opacity:0;transition:opacity .3s;z-index:50;background:#fff;padding:4px 10px;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
 .save-indicator.show{opacity:1}
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.topbar{background:#fff;border-bottom:1px solid #ddd;padding:12px 30px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;flex-wrap:wrap;gap:10px}
-.topbar-fields{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
-.topbar-fields label{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.5px}
-.topbar-fields input{border:1px solid #ddd;border-radius:4px;padding:6px 10px;font-size:13px;width:150px}
+.topbar{background:#fff;border-bottom:1px solid #ddd;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;flex-wrap:wrap;gap:8px}
+.topbar-fields{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.topbar-fields label{font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.5px}
+.topbar-fields input{border:1px solid #ddd;border-radius:4px;padding:5px 8px;font-size:13px;width:140px}
 .topbar-fields input:focus{outline:none;border-color:#0f3460}
-.file-name{font-size:10px;color:#999;font-family:monospace;margin-left:5px}
-.page-content{flex:1;overflow-y:auto;padding:30px}
+.file-name{font-size:9px;color:#aaa;font-family:monospace}
+.page-content{flex:1;overflow-y:auto;padding:24px}
 .page{display:none}.page.active{display:block}
-.page-title{font-size:22px;font-weight:700;margin-bottom:6px}
-.page-subtitle{font-size:13px;color:#888;margin-bottom:24px}
-table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08);margin-bottom:20px}
-th{background:#f8f9fa;font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.5px;padding:12px 14px;text-align:left;border-bottom:2px solid #e9ecef}
-td{padding:10px 14px;border-bottom:1px solid #f0f0f0;font-size:13px}
+.page-title{font-size:20px;font-weight:700;margin-bottom:4px}
+.page-subtitle{font-size:13px;color:#666;margin-bottom:6px}
+.page-tip{font-size:12px;color:#888;background:#f0f7ff;border-left:3px solid #4a90d9;padding:10px 14px;border-radius:0 6px 6px 0;margin-bottom:20px;line-height:1.5}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08);margin-bottom:16px}
+th{background:#f8f9fa;font-size:10px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.5px;padding:10px 12px;text-align:left;border-bottom:2px solid #e9ecef;white-space:nowrap}
+th .tip{display:block;font-size:9px;font-weight:400;color:#999;text-transform:none;letter-spacing:0;margin-top:2px}
+td{padding:8px 12px;border-bottom:1px solid #f0f0f0;font-size:13px}
 tr:last-child td{border-bottom:none}
-td input,td select,td textarea{border:none;background:transparent;width:100%;font-size:13px;padding:4px 0;font-family:inherit}
+td input,td select,td textarea{border:none;background:transparent;width:100%;font-size:13px;padding:3px 0;font-family:inherit}
 td input:focus,td select:focus,td textarea:focus{outline:none;background:#fffbe6}
-td textarea{resize:vertical;min-height:30px}
-.add-row{padding:8px 16px;background:#f0f0f0;border:1px dashed #ccc;border-radius:6px;color:#888;font-size:13px;cursor:pointer;width:100%;margin-top:5px}
+td textarea{resize:vertical;min-height:28px}
+.add-row{padding:8px 16px;background:#f0f0f0;border:1px dashed #ccc;border-radius:6px;color:#888;font-size:13px;cursor:pointer;width:100%;margin-top:4px}
 .add-row:hover{background:#e8e8e8;color:#555;border-color:#999}
-.del-btn{background:none;border:none;color:#ccc;cursor:pointer;font-size:16px;padding:0 5px}
-.del-btn:hover{color:#e94560}
+.del-btn{background:none;border:none;color:#ccc;cursor:pointer;font-size:16px;padding:0 4px;opacity:.5}
+.del-btn:hover{color:#e94560;opacity:1}
 .logo-upload{display:flex;align-items:center;gap:20px;margin-bottom:20px}
 .logo-preview{width:120px;height:120px;border:2px dashed #ddd;border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fafafa;cursor:pointer}
 .logo-preview img{max-width:100%;max-height:100%;object-fit:contain}
 .logo-preview span{font-size:12px;color:#aaa}
-.cover-box{background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.08);padding:40px;max-width:600px}
-.cover-row{margin-bottom:16px}
-.cover-row label{display:block;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.cover-box{background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.08);padding:30px;max-width:600px}
+.cover-row{margin-bottom:14px}
+.cover-row label{display:block;font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
 .cover-row input,.cover-row textarea{width:100%;border:1px solid #ddd;border-radius:4px;padding:8px 12px;font-size:14px}
 .cover-row textarea{height:80px;resize:vertical;font-family:inherit}
 .cover-row input:focus,.cover-row textarea:focus{outline:none;border-color:#0f3460}
-.sketch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;margin-bottom:20px}
+.sketch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:16px}
 .sketch-card{background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden}
-.sketch-card-img{height:200px;background:#fafafa;display:flex;align-items:center;justify-content:center;border-bottom:1px solid #eee;overflow:hidden;cursor:pointer}
+.sketch-card-img{height:180px;background:#fafafa;display:flex;align-items:center;justify-content:center;border-bottom:1px solid #eee;overflow:hidden;cursor:pointer}
 .sketch-card-img img{max-width:100%;max-height:100%;object-fit:contain}
-.sketch-card-input{padding:12px}
-.sketch-card-input label{font-size:11px;font-weight:600;color:#888;text-transform:uppercase}
-.sketch-card-input input{width:100%;border:1px solid #ddd;border-radius:4px;padding:6px 10px;font-size:13px;margin-top:4px}
+.sketch-card-input{padding:10px}
+.sketch-card-input label{font-size:10px;font-weight:600;color:#888;text-transform:uppercase}
+.sketch-card-input input{width:100%;border:1px solid #ddd;border-radius:4px;padding:5px 8px;font-size:13px;margin-top:3px}
 .sketch-card-input input:focus{outline:none;border-color:#0f3460}
 .export-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center}
 .export-overlay.show{display:flex}
@@ -73,23 +80,36 @@ td textarea{resize:vertical;min-height:30px}
 .export-box h2{margin-bottom:10px}.export-box p{color:#666;margin-bottom:20px}
 .export-box .spinner{width:40px;height:40px;border:3px solid #eee;border-top-color:#e94560;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 15px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.confidential{font-size:10px;color:#aaa;text-align:center;padding:15px;margin-top:20px;border-top:1px solid #eee;font-style:italic}
-.page-num{font-size:10px;color:#ccc;text-align:right;padding:5px 0}
-.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.section-header h2{font-size:16px;font-weight:600}
-.comments-section{margin-bottom:30px}
-.comments-section h3{font-size:15px;font-weight:600;margin-bottom:12px;color:#444}
-.status-approved{color:#4caf50;font-weight:600}
-.status-rejected{color:#e94560;font-weight:600}
-.status-pending{color:#ff9800;font-weight:600}
+.toast{position:fixed;bottom:20px;right:20px;background:#333;color:#fff;padding:12px 20px;border-radius:8px;font-size:13px;z-index:2000;opacity:0;transition:opacity .3s;max-width:350px}
+.toast.show{opacity:1}
+.toast.success{background:#4caf50}.toast.error{background:#e94560}.toast.info{background:#2196f3}
+.confidential{font-size:9px;color:#bbb;text-align:center;padding:12px;margin-top:16px;border-top:1px solid #f0f0f0;font-style:italic}
+.page-num{font-size:9px;color:#ddd;text-align:right;padding:4px 0}
+.welcome-overlay{display:flex;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:3000;align-items:center;justify-content:center}
+.welcome-overlay.hide{display:none}
+.welcome-box{background:#fff;border-radius:16px;padding:40px;max-width:520px;text-align:center}
+.welcome-box h1{font-size:24px;margin-bottom:8px}
+.welcome-box p{color:#666;line-height:1.6;margin-bottom:16px;text-align:left}
+.welcome-box ul{color:#444;text-align:left;margin:0 0 20px 20px;line-height:1.8}
+.welcome-box button{padding:12px 32px;background:#e94560;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer}
+.welcome-box button:hover{background:#c73b54}
+.confirm-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;align-items:center;justify-content:center}
+.confirm-modal.show{display:flex}
+.confirm-box{background:#fff;border-radius:12px;padding:30px;max-width:400px;text-align:center}
+.confirm-box h2{margin-bottom:10px}.confirm-box p{color:#666;margin-bottom:20px}
+.confirm-box .btns{display:flex;gap:10px;justify-content:center}
+.confirm-box .btns button{padding:10px 24px;border:none;border-radius:6px;font-size:14px;cursor:pointer}
+.confirm-box .btn-cancel{background:#eee;color:#333}.confirm-box .btn-confirm{background:#e94560;color:#fff}
+.comments-section{margin-bottom:24px}
+.comments-section h3{font-size:14px;font-weight:600;margin-bottom:10px;color:#444}
 @media(max-width:768px){
-.sidebar{position:fixed;left:-240px;top:0;height:100vh;transition:left .25s ease}
+.sidebar{position:fixed;left:-250px;top:0;height:100vh;transition:left .25s ease}
 .sidebar.open{left:0}
 .menu-toggle{display:block}
 .sidebar-overlay.show{display:block}
 .topbar{padding:12px 16px 12px 50px}
-.topbar-fields{gap:10px}
-.topbar-fields input{width:110px}
+.topbar-fields{gap:8px}
+.topbar-fields input{width:100px}
 .page-content{padding:16px}
 .sketch-grid{grid-template-columns:1fr}
 .cover-box{padding:20px}
@@ -97,47 +117,85 @@ td textarea{resize:vertical;min-height:30px}
 </style>
 </head>
 <body>
+<div class="welcome-overlay" id="welcome">
+<div class="welcome-box">
+<h1>📈 Welcome to EasyTechPack!</h1>
+<p>A <strong>tech pack</strong> is a document that tells a factory exactly how to make your clothing design. Think of it as a recipe for your garment!</p>
+<ul>
+<li><strong>Fill in your brand info</strong> at the top of the page</li>
+<li><strong>Work through the sidebar</strong> from top to bottom</li>
+<li><strong>Upload sketches</strong> of your design (draw on paper, take a photo!)</li>
+<li><strong>List your materials</strong> and measurements</li>
+<li><strong>Export as PDF</strong> when you're done to send to a factory</li>
+</ul>
+<p style="font-size:12px;color:#888;text-align:center">Don't worry about filling in everything perfectly.<br>You can always come back and edit later!</p>
+<button onclick="closeWelcome()">Let's Go!</button>
+</div>
+</div><div class="confirm-modal" id="confirm-modal">
+<div class="confirm-box">
+<h2 id="confirm-title">Are you sure?</h2>
+<p id="confirm-msg">This cannot be undone.</p>
+<div class="btns">
+<button class="btn-cancel" onclick="confirmCancel()">Cancel</button>
+<button class="btn-confirm" id="confirm-ok">Delete</button>
+</div>
+</div>
+</div><div class="toast" id="toast"></div>
 <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
 <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
 <div class="save-indicator" id="save-indicator">&#10003; Saved</div>
 <div class="sidebar">
 <div class="sidebar-header">
 <h1>&#128208; EasyTechPack</h1>
-<p>v2.0 - Professional Tech Pack Builder</p>
+<p>v2.1 - Clothing Tech Pack Builder</p>
 </div>
 <div class="sidebar-nav">
-<div class="nav-item" data-page="cover"><span class="nav-icon">📋</span> Cover Page</div>
-<div class="nav-item" data-page="sketches"><span class="nav-icon">✏️</span> Flat Sketches</div>
-<div class="nav-item" data-page="fabric-placement"><span class="nav-icon">🧵</span> Fabric Placement</div>
-<div class="nav-item" data-page="trims"><span class="nav-icon">✂️</span> Trims & Accessories</div>
-<div class="nav-item" data-page="bom"><span class="nav-icon">🧶</span> Bill of Materials</div>
-<div class="nav-item" data-page="measurements"><span class="nav-icon">📏</span> Measurement Specs</div>
-<div class="nav-item" data-page="construction"><span class="nav-icon">🪥</span> Construction Details</div>
-<div class="nav-item" data-page="stitch"><span class="nav-icon">🔗</span> Stitch Instructions</div>
-<div class="nav-item" data-page="detail-sketches"><span class="nav-icon">📐</span> Detail Sketches</div>
-<div class="nav-item" data-page="how-to-measure"><span class="nav-icon">📐</span> How to Measure</div>
-<div class="nav-item" data-page="care-labels"><span class="nav-icon">🏷️</span> Care Labels</div>
-<div class="nav-item" data-page="grading"><span class="nav-icon">📊</span> Size Grading</div>
-<div class="nav-item" data-page="grading-rules"><span class="nav-icon">📊</span> Grading Rules</div>
-<div class="nav-item" data-page="proto-tracking"><span class="nav-icon">🔬</span> Proto Tracking</div>
-<div class="nav-item" data-page="comments"><span class="nav-icon">💬</span> Comments Log</div>
-<div class="nav-item" data-page="cost"><span class="nav-icon">💰</span> Cost Sheet</div>
-<div class="nav-item" data-page="colorways"><span class="nav-icon">🎨</span> Colorways</div>
-<div class="nav-item" data-page="labels"><span class="nav-icon">🏷️</span> Labels & Branding</div>
-<div class="nav-item" data-page="packaging"><span class="nav-icon">📦</span> Packaging</div>
-<div class="nav-item" data-page="changelog"><span class="nav-icon">📝</span> Change Log</div>
+<div class="nav-category">🎨 DESIGN</div>
+<div class="nav-item" data-page="cover"><span class="nav-icon">📋</span> Cover Page<span class="nav-badge" id="badge-cover"></span></div>
+<div class="nav-item" data-page="sketches"><span class="nav-icon">✏️</span> Design Sketches<span class="nav-badge" id="badge-sketches"></span></div>
+<div class="nav-item" data-page="detail-sketches"><span class="nav-icon">📐</span> Close-Up Details<span class="nav-badge" id="badge-detail-sketches"></span></div>
+<div class="nav-category">🧵 MATERIALS</div>
+<div class="nav-item" data-page="fabric-placement"><span class="nav-icon">🧵</span> Fabric List<span class="nav-badge" id="badge-fabric-placement"></span></div>
+<div class="nav-item" data-page="trims"><span class="nav-icon">✂️</span> Trims & Extras<span class="nav-badge" id="badge-trims"></span></div>
+<div class="nav-item" data-page="bom"><span class="nav-icon">🧶</span> Materials List<span class="nav-badge" id="badge-bom"></span></div>
+<div class="nav-item" data-page="colorways"><span class="nav-icon">🎨</span> Color Options<span class="nav-badge" id="badge-colorways"></span></div>
+<div class="nav-category">📏 SIZING</div>
+<div class="nav-item" data-page="measurements"><span class="nav-icon">📏</span> Measurements<span class="nav-badge" id="badge-measurements"></span></div>
+<div class="nav-item" data-page="how-to-measure"><span class="nav-icon">📐</span> How to Measure<span class="nav-badge" id="badge-how-to-measure"></span></div>
+<div class="nav-item" data-page="grading"><span class="nav-icon">📊</span> Size Chart<span class="nav-badge" id="badge-grading"></span></div>
+<div class="nav-item" data-page="grading-rules"><span class="nav-icon">📊</span> Size Differences<span class="nav-badge" id="badge-grading-rules"></span></div>
+<div class="nav-category">🔬 PRODUCTION</div>
+<div class="nav-item" data-page="construction"><span class="nav-icon">🪥</span> How It's Made<span class="nav-badge" id="badge-construction"></span></div>
+<div class="nav-item" data-page="stitch"><span class="nav-icon">🔗</span> Stitch Details<span class="nav-badge" id="badge-stitch"></span></div>
+<div class="nav-item" data-page="care-labels"><span class="nav-icon">🏷️</span> Care Instructions<span class="nav-badge" id="badge-care-labels"></span></div>
+<div class="nav-item" data-page="proto-tracking"><span class="nav-icon">🔬</span> Sample Tracking<span class="nav-badge" id="badge-proto-tracking"></span></div>
+<div class="nav-item" data-page="comments"><span class="nav-icon">💬</span> Feedback Notes<span class="nav-badge" id="badge-comments"></span></div>
+<div class="nav-category">💰 BUSINESS</div>
+<div class="nav-item" data-page="cost"><span class="nav-icon">💰</span> Cost Calculator<span class="nav-badge" id="badge-cost"></span></div>
+<div class="nav-item" data-page="labels"><span class="nav-icon">🏷️</span> Labels & Tags<span class="nav-badge" id="badge-labels"></span></div>
+<div class="nav-item" data-page="packaging"><span class="nav-icon">📦</span> Packaging<span class="nav-badge" id="badge-packaging"></span></div>
+<div class="nav-item" data-page="changelog"><span class="nav-icon">📝</span> Changes Log<span class="nav-badge" id="badge-changelog"></span></div>
 </div>
 <div class="sidebar-footer">
-<button class="export-btn" onclick="exportPDF()">&#128196; Export as PDF</button>
-<button class="new-btn" onclick="newTechPack()">&#128465; New Tech Pack</button>
+<div class="save-status" id="save-status">Auto-saving enabled</div>
+<button class="export-btn" onclick="exportPDF()">&#128196; Export PDF</button>
+<div class="btn-row">
+<button onclick="loadExample()">&#128218; Load Example</button>
+<button onclick="newTechPack()">&#128465; New</button>
+</div>
+<div class="btn-row">
+<button onclick="saveBackup()">&#128190; Save Backup</button>
+<button onclick="document.getElementById('load-backup-input').click()">&#128194; Load Backup</button>
+<input type="file" id="load-backup-input" accept=".json" style="display:none" onchange="loadBackup(this)">
+</div>
 </div>
 </div>
 <div class="main">
 <div class="topbar">
 <div class="topbar-fields">
-<div><label>Brand</label><br><input type="text" id="brand-name" placeholder="Brand" oninput="debouncedSave()"></div>
-<div><label>Style</label><br><input type="text" id="style-name" placeholder="Style #001" oninput="debouncedSave()"></div>
-<div><label>Date</label><br><input type="date" id="pack-date" oninput="debouncedSave()"></div>
+<div><label>Brand Name</label><br><input type="text" id="brand-name" placeholder="Your Brand" oninput="debouncedSave()"></div>
+<div><label>Style Name</label><br><input type="text" id="style-name" placeholder="e.g. Classic Hoodie" oninput="debouncedSave()"></div>
+<div><label>Design Date</label><br><input type="date" id="pack-date" oninput="debouncedSave()"></div>
 <div><label>Version</label><br><input type="text" id="pack-version" placeholder="v1.0" oninput="debouncedSave()"></div>
 <span class="file-name" id="file-name"></span>
 </div>
@@ -145,250 +203,259 @@ td textarea{resize:vertical;min-height:30px}
 <div class="page-content">
 <div class="page active" id="page-cover">
 <h2 class="page-title">Cover Page</h2>
-<p class="page-subtitle">Brand identity and basic style information</p>
+<p class="page-subtitle">Your brand info and logo - START HERE</p>
+<div class="page-tip">Start here! Fill in your brand name and logo. This is the first page anyone sees in your tech pack.</div>
 <div class="cover-box">
 <div class="logo-upload">
 <div class="logo-preview" id="logo-preview" onclick="document.getElementById('logo-input').click()"><span>Click to upload logo</span></div>
 <input type="file" id="logo-input" accept="image/*" onchange="handleLogo(this)" style="display:none">
 </div>
-<div class="cover-row"><label>Designer Name</label><input type="text" id="designer-name" placeholder="Designer name" oninput="debouncedSave()"></div>
-<div class="cover-row"><label>Season</label><input type="text" id="season" placeholder="e.g. SS26" oninput="debouncedSave()"></div>
-<div class="cover-row"><label>Description</label><textarea id="style-desc" placeholder="Describe the garment..." oninput="debouncedSave()"></textarea></div>
+<div class="cover-row"><label>Designer Name</label><input type="text" id="designer-name" placeholder="Your name" oninput="debouncedSave()"></div>
+<div class="cover-row"><label>Season</label><input type="text" id="season" placeholder="e.g. Spring 2026" oninput="debouncedSave()"></div>
+<div class="cover-row"><label>Description</label><textarea id="style-desc" placeholder="Describe your garment..." oninput="debouncedSave()"></textarea></div>
 </div><div class="page-num" id="page-num-cover"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction, disclosure or transmittal without written consent is strictly prohibited.</div>
+<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
 </div>
-
 <div class="page" id="page-sketches">
-<h2 class="page-title">Flat Sketches</h2>
-<p class="page-subtitle">Upload front, back, and detail views</p>
+<h2 class="page-title">Design Sketches</h2>
+<p class="page-subtitle">Upload drawings of your garment from different angles</p>
+<div class="page-tip">Draw your garment on paper (front, back, side views), take a photo with your phone, and upload it here. Black and white drawings work best!</div>
 <div class="sketch-grid" id="sketch-grid"></div>
-<button class="add-row" onclick="addSketch('sketches')">+ Add Sketch View</button>
+<button class="add-row" onclick="addSketch('sketches')">+ Add Sketch</button>
 <div class="page-num" id="page-num-sketches"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction, disclosure or transmittal without written consent is strictly prohibited.</div>
+<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
 </div>
-
 <div class="page" id="page-fabric-placement">
-<h2 class="page-title">Fabric Placement</h2>
-<p class="page-subtitle">Where each fabric goes on the garment</p>
-<table><thead><tr><th>Fabric Name</th><th>Description</th><th>Color/Pantone</th><th>Location</th><th>Placement Notes</th><th></th></tr></thead><tbody id="fab-body"></tbody></table>
+<h2 class="page-title">Fabric List</h2>
+<p class="page-subtitle">What fabrics you need and where each one goes</p>
+<div class="page-tip">List every fabric you'll use and where it goes on the garment. For example: 'Cotton jersey' on the 'Body', 'Rib knit' on the 'Cuffs'.</div>
+<table><thead><tr><th>Fabric Name<span class="tip">e.g. Cotton Jersey</span></th><th>Description<span class="tip">Weight, stretch, etc.</span></th><th>Color<span class="tip">Color name or Pantone code</span></th><th>Location<span class="tip">Where on the garment</span></th><th>Notes</th><th></th></tr></thead><tbody id="fab-body"></tbody></table>
 <button class="add-row" onclick="addRow('fab')">+ Add Fabric</button>
 <div class="page-num" id="page-num-fabric-placement"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction, disclosure or transmittal without written consent is strictly prohibited.</div>
+<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
 </div>
-
 <div class="page" id="page-trims">
-<h2 class="page-title">Trims & Accessories</h2>
-<p class="page-subtitle">Zippers, buttons, labels, elastic, embroidery</p>
-<table><thead><tr><th>Trim Type</th><th>Description</th><th>Supplier</th><th>Color</th><th>Size/Dim</th><th>Placement</th><th>Photo</th><th></th></tr></thead><tbody id="trim-body"></tbody></table>
+<h2 class="page-title">Trims & Extras</h2>
+<p class="page-subtitle">Zippers, buttons, labels, and other supplies</p>
+<div class="page-tip">List all the extras: zippers, buttons, labels, drawstrings, elastic. Add photos if you have them so the factory knows exactly what you want.</div>
+<table><thead><tr><th>Type<span class="tip">Zipper, button, label, etc.</span></th><th>Description</th><th>Supplier</th><th>Color</th><th>Size</th><th>Placement<span class="tip">Where on garment</span></th><th></th></tr></thead><tbody id="trim-body"></tbody></table>
 <button class="add-row" onclick="addRow('trim')">+ Add Trim</button>
 <div class="page-num" id="page-num-trims"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction, disclosure or transmittal without written consent is strictly prohibited.</div>
+<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
 </div>
-
 <div class="page" id="page-bom">
-<h2 class="page-title">Bill of Materials</h2>
-<p class="page-subtitle">All fabrics, trims, closures, labels, packaging</p>
-<table><thead><tr><th>Material</th><th>Description</th><th>Color/Pantone</th><th>Supplier</th><th>Width</th><th>Qty</th><th>Unit</th><th></th></tr></thead><tbody id="bom-body"></tbody></table>
+<h2 class="page-title">Materials List</h2>
+<p class="page-subtitle">Complete list of everything needed to make this garment</p>
+<div class="page-tip">This is your complete shopping list. Everything the factory needs to buy to make your garment. Check your sketches to make sure you didn't miss anything!</div>
+<table><thead><tr><th>Material<span class="tip">What it is</span></th><th>Description</th><th>Color/Pantone</th><th>Supplier</th><th>Width</th><th>Qty Needed</th><th>Unit<span class="tip">yards, meters, pcs</span></th><th></th></tr></thead><tbody id="bom-body"></tbody></table>
 <button class="add-row" onclick="addRow('bom')">+ Add Material</button>
 <div class="page-num" id="page-num-bom"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction, disclosure or transmittal without written consent is strictly prohibited.</div>
+<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
 </div>
-
 <div class="page" id="page-measurements">
-<h2 class="page-title">Measurement Specs</h2>
-<p class="page-subtitle">Points of measurement with tolerances</p>
-<table><thead><tr><th>Point of Measurement</th><th>Sample Size</th><th>Measurement</th><th>Tolerance</th><th>Unit</th><th></th></tr></thead><tbody id="meas-body"></tbody></table>
-<button class="add-row" onclick="addRow('meas')">+ Add Measurement Point</button>
+<h2 class="page-title">Measurements</h2>
+<p class="page-subtitle">The actual sizes and dimensions for your garment</p>
+<div class="page-tip">The actual numbers for your garment. Tip: take measurements from a similar garment you already own that fits well!</div>
+<table><thead><tr><th>Measurement Point<span class="tip">e.g. Chest, Length, Sleeve</span></th><th>Sample Size<span class="tip">e.g. M, L</span></th><th>Measurement<span class="tip">The actual number</span></th><th>Tolerance<span class="tip">Acceptable +/- variation</span></th><th>Unit<span class="tip">inches or cm</span></th><th></th></tr></thead><tbody id="meas-body"></tbody></table>
+<button class="add-row" onclick="addRow('meas')">+ Add Measurement</button>
 <div class="page-num" id="page-num-measurements"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction, disclosure or transmittal without written consent is strictly prohibited.</div>
+<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
 </div>
-
 <div class="page" id="page-construction">
-<h2 class="page-title">Construction Details</h2>
-<p class="page-subtitle">Seam types and general construction notes</p>
-<table><thead><tr><th>Area/Component</th><th>Seam Type</th><th>Notes</th><th></th></tr></thead><tbody id="const-body"></tbody></table>
-<button class="add-row" onclick="addRow('const')">+ Add Detail</button>
+<h2 class="page-title">How It's Made</h2>
+<p class="page-subtitle">Notes on how the pieces are sewn together</p>
+<div class="page-tip">General notes about how the garment is sewn together. For example: 'Side seams should be flatlocked' or 'Hood is lined'.</div>
+<table><thead><tr><th>Area/Component<span class="tip">e.g. Side seam, Collar</span></th><th>Seam Type</th><th>Notes</th><th></th></tr></thead><tbody id="const-body"></tbody></table>
+<button class="add-row" onclick="addRow('const')">+ Add Note</button>
 <div class="page-num" id="page-num-construction"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction, disclosure or transmittal without written consent is strictly prohibited.</div>
+<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
 </div>
-
 <div class="page" id="page-stitch">
-<h2 class="page-title">Stitch Instructions</h2>
-<p class="page-subtitle">Stitch types, SPI, seam allowances per area</p>
-<table><thead><tr><th>Area</th><th>Stitch Type</th><th>SPI</th><th>Seam Allowance</th><th>Seam Construction</th><th>Notes</th><th></th></tr></thead><tbody id="stitch-body"></tbody></table>
+<h2 class="page-title">Stitch Details</h2>
+<p class="page-subtitle">What stitches to use and where</p>
+<div class="page-tip">The specific stitches used. Don't worry if you don't know stitch types - just describe what you see on similar garments you like.</div>
+<table><thead><tr><th>Area</th><th>Stitch Type</th><th>SPI<span class="tip">Stitches Per Inch - how tight the stitch is</span></th><th>Seam Allowance<span class="tip">Extra fabric beyond stitch line</span></th><th>Construction</th><th>Notes</th><th></th></tr></thead><tbody id="stitch-body"></tbody></table>
 <button class="add-row" onclick="addRow('stitch')">+ Add Stitch Detail</button>
 <div class="page-num" id="page-num-stitch"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction, disclosure or transmittal without written consent is strictly prohibited.</div>
+<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
 </div>
-
 <div class="page" id="page-detail-sketches">
-<h2 class="page-title">Detail Sketches</h2>
-<p class="page-subtitle">Close-up construction details and seam cross-sections</p>
+<h2 class="page-title">Close-Up Details</h2>
+<p class="page-subtitle">Zoomed-in drawings of tricky construction areas</p>
+<div class="page-tip">Upload close-up drawings of tricky areas: pocket construction, zipper details, seam finishes. The more detail, the better!</div>
 <div class="sketch-grid" id="detail-grid"></div>
 <button class="add-row" onclick="addSketch('details')">+ Add Detail Sketch</button>
 <div class="page-num" id="page-num-detail-sketches"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction, disclosure or transmittal without written consent is strictly prohibited.</div>
+<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
 </div>
-
 <div class="page" id="page-how-to-measure">
 <h2 class="page-title">How to Measure</h2>
-<p class="page-subtitle">Visual guide for measurement points</p>
+<p class="page-subtitle">Diagrams showing WHERE to measure on the garment</p>
+<div class="page-tip">Diagrams showing exactly WHERE to measure. This helps the factory measure the same way you do.</div>
 <div class="sketch-grid" id="htm-grid"></div>
-<table><thead><tr><th>Measurement Point</th><th>Start Point</th><th>End Point</th><th>Method</th><th></th></tr></thead><tbody id="htm-body"></tbody></table>
+<table><thead><tr><th>Measurement Point<span class="tip">What you're measuring</span></th><th>Start Point<span class="tip">Where the tape starts</span></th><th>End Point<span class="tip">Where the tape ends</span></th><th>How to Measure<span class="tip">Describe the method</span></th><th></th></tr></thead><tbody id="htm-body"></tbody></table>
 <button class="add-row" onclick="addRow('htm')">+ Add Measurement Method</button>
 <div class="page-num" id="page-num-how-to-measure"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction, disclosure or transmittal without written consent is strictly prohibited.</div>
+<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
 </div>
-
 <div class="page" id="page-care-labels">
-<h2 class="page-title">Care Labels</h2>
-<p class="page-subtitle">Wash, dry, iron, and care instructions</p>
-<table><thead><tr><th>Symbol Type</th><th>Instruction</th><th>Language</th><th>Notes</th><th></th></tr></thead><tbody id="care-body"></tbody></table>
+<h2 class="page-title">Care Instructions</h2>
+<p class="page-subtitle">Washing, drying, and ironing instructions for the label</p>
+<div class="page-tip">The washing instructions that go on the label inside your garment. You can usually get these from your fabric supplier.</div>
+<table><thead><tr><th>Care Category<span class="tip">Wash, Dry, Iron, etc.</span></th><th>Instruction<span class="tip">e.g. Machine wash cold, tumble dry low</span></th><th>Language</th><th>Notes</th><th></th></tr></thead><tbody id="care-body"></tbody></table>
 <button class="add-row" onclick="addRow('care')">+ Add Care Instruction</button>
 <div class="page-num" id="page-num-care-labels"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction, disclosure or transmittal without written consent is strictly prohibited.</div>
+<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
 </div>
-
 <div class="page" id="page-grading">
-<h2 class="page-title">Size Grading</h2>
-<p class="page-subtitle">Measurement grades across full size range</p>
+<h2 class="page-title">Size Chart</h2>
+<p class="page-subtitle">Measurements for each size (XS, S, M, L, XL)</p>
+<div class="page-tip">Your garment in different sizes. Start with one size (like M) and then figure out the measurements for other sizes.</div>
 <div style="overflow-x:auto"><table><thead><tr><th>Measurement Point</th><th>XS</th><th>S</th><th>M</th><th>L</th><th>XL</th><th></th></tr></thead><tbody id="grade-body"></tbody></table></div>
-<button class="add-row" onclick="addRow('grade')">+ Add Grading Row</button>
+<button class="add-row" onclick="addRow('grade')">+ Add Size</button>
 <div class="page-num" id="page-num-grading"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction, disclosure or transmittal without written consent is strictly prohibited.</div>
+<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
 </div>
-
 <div class="page" id="page-grading-rules">
-<h2 class="page-title">Grading Rules</h2>
-<p class="page-subtitle">Grading rules per size jump</p>
-<table><thead><tr><th>Measurement Point</th><th>XS→S</th><th>S→M</th><th>M→L</th><th>L→XL</th><th>XL→XXL</th><th>Notes</th><th></th></tr></thead><tbody id="grule-body"></tbody></table>
-<button class="add-row" onclick="addRow('grule')">+ Add Grading Rule</button>
+<h2 class="page-title">Size Differences</h2>
+<p class="page-subtitle">How much each measurement changes between sizes</p>
+<div class="page-tip">How much each measurement changes between sizes. For example: chest might grow 2cm from M to L. Ask your factory for help!</div>
+<div class="page-tip">Grading rules = how much each measurement changes between sizes. Example: if chest goes up 2cm from S to M, the rule is +2.</div>
+<table><thead><tr><th>Measurement</th><th>XS to S<span class="tip">Change</span></th><th>S to M</th><th>M to L</th><th>L to XL</th><th>XL to XXL</th><th>Notes</th><th></th></tr></thead><tbody id="grule-body"></tbody></table>
+<button class="add-row" onclick="addRow('grule')">+ Add Rule</button>
 <div class="page-num" id="page-num-grading-rules"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction, disclosure or transmittal without written consent is strictly prohibited.</div>
+<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
 </div>
-
 <div class="page" id="page-proto-tracking">
-<h2 class="page-title">Proto Tracking</h2>
-<p class="page-subtitle">Track proto samples through development rounds</p>
-<table><thead><tr><th>Measurement Point</th><th>Spec</th><th>P1 Actual</th><th>P1 Comments</th><th>P2 Actual</th><th>P2 Comments</th><th>PPS Actual</th><th>Tolerance</th><th>Status</th><th></th></tr></thead><tbody id="proto-body"></tbody></table>
-<button class="add-row" onclick="addRow('proto')">+ Add Measurement Point</button>
+<h2 class="page-title">Sample Tracking</h2>
+<p class="page-subtitle">Track how each sample version matches your design</p>
+<div class="page-tip">When the factory makes a sample, you check it and note what needs to change. Track each round of samples here.</div>
+<div class="page-tip"><strong>Sample Tracking:</strong> When the factory sends you a sample garment, you check it and record the actual measurements. P1 = 1st sample, P2 = 2nd sample (after changes), PPS = final pre-production sample.</div>
+<table><thead><tr><th>Measurement</th><th>Your Spec<span class="tip">What you want</span></th><th>P1 Actual<span class="tip">1st sample measurement</span></th><th>P1 Notes</th><th>P2 Actual</th><th>P2 Notes</th><th>PPS Final</th><th>Tolerance<span class="tip">OK range +/-</span></th><th>Status</th><th></th></tr></thead><tbody id="proto-body"></tbody></table>
+<button class="add-row" onclick="addRow('proto')">+ Add Point</button>
 <div class="page-num" id="page-num-proto-tracking"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction, disclosure or transmittal without written consent is strictly prohibited.</div>
+<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
 </div>
-
 <div class="page" id="page-comments">
-<h2 class="page-title">Comments Log</h2>
-<p class="page-subtitle">Pattern and sewing department feedback</p>
-<div class="comments-section"><h3>&#128208; Pattern Department Comments</h3>
-<table><thead><tr><th>Date</th><th>Proto #</th><th>Comment</th><th>Action Taken</th><th>Status</th><th></th></tr></thead><tbody id="pattern-body"></tbody></table>
-<button class="add-row" onclick="addRow('pattern')">+ Add Pattern Comment</button>
+<h2 class="page-title">Feedback Notes</h2>
+<p class="page-subtitle">Notes and changes for each sample round</p>
+<div class="page-tip">Write down everything that needs fixing after you check a sample. Separate pattern changes (sizing) from sewing changes (construction).</div>
+<div class="comments-section"><h3>📈 Pattern/Sizing Changes</h3>
+<p class="page-tip" style="margin-bottom:12px">Changes to measurements, fit, or proportions. These go to the pattern maker.</p>
+<table><thead><tr><th>Date</th><th>Sample #<span class="tip">Which sample round</span></th><th>What Needs to Change</th><th>What Was Done</th><th>Status</th><th></th></tr></thead><tbody id="pattern-body"></tbody></table>
+<button class="add-row" onclick="addRow('pattern')">+ Add Note</button>
 </div>
-<div class="comments-section"><h3>&#1fa9a; Sewing / Construction Comments</h3>
-<table><thead><tr><th>Date</th><th>Proto #</th><th>Comment</th><th>Action Taken</th><th>Status</th><th></th></tr></thead><tbody id="sewing-body"></tbody></table>
-<button class="add-row" onclick="addRow('sewing')">+ Add Sewing Comment</button>
+<div class="comments-section"><h3>🪚 Sewing/Construction Changes</h3>
+<p class="page-tip" style="margin-bottom:12px">Changes to stitching, seams, or construction details. These go to the sewing team.</p>
+<table><thead><tr><th>Date</th><th>Sample #</th><th>What Needs to Change</th><th>What Was Done</th><th>Status</th><th></th></tr></thead><tbody id="sewing-body"></tbody></table>
+<button class="add-row" onclick="addRow('sewing')">+ Add Note</button>
 </div><div class="page-num" id="page-num-comments"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction, disclosure or transmittal without written consent is strictly prohibited.</div>
+<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
 </div>
-
 <div class="page" id="page-cost">
-<h2 class="page-title">Cost Sheet</h2>
-<p class="page-subtitle">Material costs, labor, and per-unit cost breakdown</p>
-<table><thead><tr><th>Component</th><th>Cost (USD)</th><th>Qty</th><th>Subtotal</th><th>Notes</th><th></th></tr></thead><tbody id="cost-body"></tbody></table>
+<h2 class="page-title">Cost Calculator</h2>
+<p class="page-subtitle">How much each piece costs to make</p>
+<div class="page-tip">Add up all your material costs to see how much each piece costs to make. This helps you set your selling price.</div>
+<table><thead><tr><th>Item<span class="tip">Fabric, zipper, labor, etc.</span></th><th>Cost per Unit ($)<span class="tip">Price per piece/yard</span></th><th>Qty Needed</th><th>Subtotal</th><th>Notes</th><th></th></tr></thead><tbody id="cost-body"></tbody></table>
 <button class="add-row" onclick="addRow('cost')">+ Add Cost Item</button>
-<div style="margin-top:20px;background:#fff;border-radius:8px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.08);display:inline-block"><strong>Total per-unit cost: $<span id="cost-total">0.00</span></strong></div>
+<div style="margin-top:16px;background:#fff;border-radius:8px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.08);display:inline-block"><strong>Total cost per garment: $<span id="cost-total">0.00</span></strong></div>
 <div class="page-num" id="page-num-cost"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction, disclosure or transmittal without written consent is strictly prohibited.</div>
+<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
 </div>
-
 <div class="page" id="page-colorways">
-<h2 class="page-title">Colorways</h2>
-<p class="page-subtitle">Color variations for the garment</p>
-<table><thead><tr><th>Color Name</th><th>Pantone Code</th><th>Swatch</th><th>Notes</th><th></th></tr></thead><tbody id="color-body"></tbody></table>
-<button class="add-row" onclick="addRow('color')">+ Add Colorway</button>
+<h2 class="page-title">Color Options</h2>
+<p class="page-subtitle">All the colors this garment will come in</p>
+<div class="page-tip">List all the colors your garment will come in. You can use the color picker or enter Pantone codes if you have them.</div>
+<table><thead><tr><th>Color Name<span class="tip">e.g. Midnight Blue</span></th><th>Pantone Code<span class="tip">Optional - e.g. 19-4024</span></th><th>Color Picker</th><th>Notes</th><th></th></tr></thead><tbody id="color-body"></tbody></table>
+<button class="add-row" onclick="addRow('color')">+ Add Color</button>
 <div class="page-num" id="page-num-colorways"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction, disclosure or transmittal without written consent is strictly prohibited.</div>
+<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
 </div>
-
 <div class="page" id="page-labels">
-<h2 class="page-title">Labels & Branding</h2>
-<p class="page-subtitle">Label placements and branding specs</p>
-<table><thead><tr><th>Label Type</th><th>Placement</th><th>Dimensions</th><th>Material</th><th>Attachment</th><th></th></tr></thead><tbody id="label-body"></tbody></table>
+<h2 class="page-title">Labels & Tags</h2>
+<p class="page-subtitle">Brand labels, size tags, and hang tags</p>
+<div class="page-tip">Your brand label, size tag, and care label. Note where each one goes and what it looks like.</div>
+<table><thead><tr><th>Label Type<span class="tip">Main label, size tag, care label</span></th><th>Placement<span class="tip">Where on garment</span></th><th>Size<span class="tip">Dimensions of label</span></th><th>Material<span class="tip">Woven, printed, etc.</span></th><th>Attachment<span class="tip">Sewn in, heat transfer, etc.</span></th><th></th></tr></thead><tbody id="label-body"></tbody></table>
 <button class="add-row" onclick="addRow('label')">+ Add Label</button>
 <div class="page-num" id="page-num-labels"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction, disclosure or transmittal without written consent is strictly prohibited.</div>
+<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
 </div>
-
 <div class="page" id="page-packaging">
 <h2 class="page-title">Packaging</h2>
-<p class="page-subtitle">Poly bags, hang tags, boxing, shipping</p>
-<table><thead><tr><th>Item</th><th>Material</th><th>Dimensions</th><th>Qty per Unit</th><th>Notes</th><th></th></tr></thead><tbody id="pack-body"></tbody></table>
-<button class="add-row" onclick="addRow('pack')">+ Add Packaging Item</button>
+<p class="page-subtitle">How the garment is packed and shipped</p>
+<div class="page-tip">How the garment is packed: poly bag, hang tag, box. Include any special instructions.</div>
+<table><thead><tr><th>Item<span class="tip">Poly bag, hang tag, box, etc.</span></th><th>Material</th><th>Size/Dimensions</th><th>Qty per Garment</th><th>Notes</th><th></th></tr></thead><tbody id="pack-body"></tbody></table>
+<button class="add-row" onclick="addRow('pack')">+ Add Item</button>
 <div class="page-num" id="page-num-packaging"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction, disclosure or transmittal without written consent is strictly prohibited.</div>
+<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
 </div>
-
 <div class="page" id="page-changelog">
-<h2 class="page-title">Change Log</h2>
-<p class="page-subtitle">Track revisions and changes</p>
-<table><thead><tr><th>Date</th><th>Version</th><th>Change Description</th><th>Changed By</th><th>Status</th><th></th></tr></thead><tbody id="log-body"></tbody></table>
+<h2 class="page-title">Changes Log</h2>
+<p class="page-subtitle">Keep track of all edits and updates</p>
+<div class="page-tip">Keep a record of all changes you make. This helps when working with factories!</div>
+<table><thead><tr><th>Date</th><th>Version</th><th>What Changed</th><th>Who Changed It</th><th>Status</th><th></th></tr></thead><tbody id="log-body"></tbody></table>
 <button class="add-row" onclick="addRow('log')">+ Add Entry</button>
 <div class="page-num" id="page-num-changelog"></div>
-<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction, disclosure or transmittal without written consent is strictly prohibited.</div>
+<div class="confidential">CONFIDENTIAL PROPERTY OF <span class="conf-brand">YOUR BRAND</span>. Unauthorized reproduction or disclosure prohibited.</div>
 </div>
-
-</div>
-</div>
+</div></div>
 <div class="export-overlay" id="export-overlay">
-<div class="export-box">
-<div class="spinner"></div>
-<h2>Generating PDF...</h2>
-<p id="export-status">Rendering pages...</p>
-</div>
+<div class="export-box"><div class="spinner"></div><h2>Generating PDF...</h2><p id="export-status">Rendering...</p></div>
 </div>
 <script>
 
-function escapeHTML(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-const SK='easytechpack_v2',MAX_IMG=400;
-function getStore(){try{return JSON.parse(localStorage.getItem(SK))||{}}catch(e){return{}}}
-function setStore(d){try{localStorage.setItem(SK,JSON.stringify(d));showSave()}catch(e){if(e.name==='QuotaExceededError')alert('Storage full! Use smaller images.')}}
-
-function showSave(){const e=document.getElementById('save-indicator');e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),1500)}
-let _st=null;function debouncedSave(){clearTimeout(_st);_st=setTimeout(saveAll,400)}
-function getState(k){return getStore()[k]||[]}
-function setState(k,d){const s=getStore();s[k]=d;setStore(s)}
-
-function compressImage(dataUrl,cb){const img=new Image();img.onload=function(){const c=document.createElement('canvas');let w=img.width,h=img.height;if(w>MAX_IMG||h>MAX_IMG){if(w>h){h=Math.round(h*MAX_IMG/w);w=MAX_IMG}else{w=Math.round(w*MAX_IMG/h);h=MAX_IMG}}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);cb(c.toDataURL('image/jpeg',.7))};img.src=dataUrl}
-
+function eH(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+const SK='easytechpack_v2_1',MI=400;
+function gS(){try{return JSON.parse(localStorage.getItem(SK))||{}}catch(e){return{}}}
+function sS(d){try{localStorage.setItem(SK,JSON.stringify(d));showSave();updateBadges()}catch(e){alert('Storage full! Try removing some images.')}}
+function showSave(){const e=document.getElementById('save-indicator');e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),2000);const s=document.getElementById('save-status');if(s)s.textContent='Saved at '+new Date().toLocaleTimeString()}
+let _st;function debouncedSave(){clearTimeout(_st);_st=setTimeout(saveAll,400)}
+function gSt(k){return gS()[k]||[]}
+function sSt(k,d){const s=gS();s[k]=d;sS(s)}
+function cImg(u,cb){const i=new Image();i.onload=function(){const c=document.createElement('canvas');let w=i.width,h=i.height;if(w>MI||h>MI){if(w>h){h=Math.round(h*MI/w);w=MI}else{w=Math.round(w*MI/h);h=MI}}c.width=w;c.height=h;c.getContext('2d').drawImage(i,0,0,w,h);cb(c.toDataURL('image/jpeg',.7))};i.src=u}
+function toast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+(type||'');setTimeout(()=>t.className='toast',3000)}
+let _confirmCb=null;
+function showConfirm(title,msg,cb){document.getElementById('confirm-title').textContent=title;document.getElementById('confirm-msg').textContent=msg;document.getElementById('confirm-modal').classList.add('show');_confirmCb=cb;document.getElementById('confirm-ok').onclick=function(){document.getElementById('confirm-modal').classList.remove('show');if(_confirmCb)_confirmCb()}}
+function confirmCancel(){document.getElementById('confirm-modal').classList.remove('show')}
+function closeWelcome(){document.getElementById('welcome').classList.add('hide');localStorage.setItem(SK+'_welcomed','1')}
 function saveAll(){
-const s=getStore();
-['brand-name','style-name','pack-date','pack-version','designer-name','season','style-desc'].forEach(id=>{
-const el=document.getElementById(id);if(el)s[id.replace(/-/g,'_')]=el.value});
-s.logoDataUrl=getStore().logoDataUrl;
-setStore(s);updateFileName();updateConfidential()
+const s=gS();
+['brand-name','style-name','pack-date','pack-version','designer-name','season','style-desc'].forEach(id=>{const el=document.getElementById(id);if(el)s[id.replace(/-/g,'_')]=el.value});
+s.logoDataUrl=gS().logoDataUrl;sS(s);updateFileName();updateConfidential()
 }
 function loadAll(){
-const s=getStore();
+const s=gS();
 const m={'brand-name':'brand_name','style-name':'style_name','pack-date':'pack_date','pack-version':'pack_version','designer-name':'designer_name','season':'season','style-desc':'style_desc'};
-Object.entries(m).forEach(([id,key])=>{if(s[key])document.getElementById(id).value=s[key]});
+Object.entries(m).forEach(([id,k])=>{if(s[k])document.getElementById(id).value=s[k]});
 if(s.logoDataUrl)showLogo(s.logoDataUrl);
+if(!localStorage.getItem(SK+'_welcomed'))document.getElementById('welcome').classList.remove('hide');
+else document.getElementById('welcome').classList.add('hide');
 updateFileName();updateConfidential()
 }
-function updateFileName(){
-const b=document.getElementById('brand-name').value||'BRAND';
-const st=document.getElementById('style-name').value||'STYLE';
-const d=document.getElementById('pack-date').value||new Date().toISOString().split('T')[0];
-const fn=`${b.replace(/\s+/g,'-')}-${st.replace(/\s+/g,'-')}-${d}`;
-const el=document.getElementById('file-name');if(el)el.textContent=fn
+function updateFileName(){const b=document.getElementById('brand-name').value||'BRAND';const st=document.getElementById('style-name').value||'STYLE';const d=document.getElementById('pack-date').value||new Date().toISOString().split('T')[0];const el=document.getElementById('file-name');if(el)el.textContent=b.replace(/\s+/g,'-')+'-'+st.replace(/\s+/g,'-')+'-'+d}
+function updateConfidential(){const b=document.getElementById('brand-name').value||'YOUR BRAND';document.querySelectorAll('.conf-brand').forEach(el=>el.textContent=b.toUpperCase())}
+function updateBadges(){const pages=['cover','sketches','fabric-placement','trims','bom','measurements','construction','stitch','detail-sketches','how-to-measure','care-labels','grading','grading-rules','proto-tracking','comments','cost','colorways','labels','packaging','changelog'];pages.forEach(p=>{const b=document.getElementById('badge-'+p);if(!b)return;const keys={cover:['brand_name'],sketches:['sketches'],details:['details'],fab:['fab'],trim:['trim'],bom:['bom'],meas:['meas'],const:['const'],stitch:['stitch'],htm:['htm'],care:['care'],grade:['grade'],grule:['grule'],proto:['proto'],pattern:['pattern'],sewing:['sewing'],cost:['cost'],color:['color'],label:['label'],pack:['pack'],log:['log']};const k=keys[p]||keys[p.replace(/-/g,'')];if(!k)return;const st=gS();let hasData=false;k.forEach(key=>{if(st[key]&&st[key].length>0)hasData=true});const nav=document.querySelector(`.nav-item[data-page="${p}"]`);if(nav){if(hasData){nav.classList.add('has-data');b.textContent='\u2713'}else{nav.classList.remove('has-data');b.textContent=''}}})}
+function handleLogo(input){const f=input.files[0];if(!f)return;const r=new FileReader();r.onload=()=>cImg(r.result,c=>{showLogo(c);const s=gS();s.logoDataUrl=c;sS(s)});r.readAsDataURL(f)}
+function showLogo(src){document.getElementById('logo-preview').innerHTML='<img src="'+eH(src)+'" alt="Logo">'}
+function toggleSidebar(){document.querySelector('.sidebar').classList.toggle('open');document.querySelector('.sidebar-overlay').classList.toggle('show')}
+function newTechPack(){showConfirm('Start New Tech Pack?','This will delete ALL your current data. Consider saving a backup first!',()=>{localStorage.removeItem(SK);location.reload()})}
+function saveBackup(){const d=gS();const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;const bn=document.getElementById('brand-name').value||'backup';const dt=new Date().toISOString().split('T')[0];a.download=bn.replace(/\s+/g,'-')+'-techpack-'+dt+'.json';a.click();URL.revokeObjectURL(u);toast('Backup saved!','success')}
+function loadBackup(input){const f=input.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);localStorage.setItem(SK,JSON.stringify(d));toast('Backup loaded! Reloading...','success');setTimeout(()=>location.reload(),1000)}catch(e){toast('Invalid backup file!','error')}};r.readAsText(f)}
+function loadExample(){
+showConfirm('Load Example Data?','This will replace your current data with a sample hoodie tech pack.',()=>{
+const s={brand_name:'Cool Kid Streetwear',style_name:'Classic Hoodie',pack_date:new Date().toISOString().split('T')[0],pack_version:'v1.0',designer_name:'Alex Chen',season:'Spring 2026',style_desc:'A classic pullover hoodie with kangaroo pocket, ribbed cuffs and hem, and drawstring hood.',
+fab:[{name:'French Terry',desc:'350gsm cotton/poly blend, soft brushed interior',color:'Charcoal Grey',location:'Body',notes:'Main body fabric'},{name:'Rib Knit',desc:'1x1 rib, 95% cotton 5% elastane',color:'Charcoal Grey',location:'Cuff',notes:'Cuffs and hem band'},{name:'Jersey',desc:'Lightweight cotton jersey',color:'Charcoal Grey',location:'Hood',notes:'Hood lining'}],
+trim:[{type:'Drawstring',desc:'Flat cotton drawstring, 120cm',supplier:'',color:'Black',size:'1cm wide',placement:'Hood'},{type:'Label',desc:'Woven main label',supplier:'',color:'Black/White',size:'5cm x 2cm',placement:'Center back neck'},{type:'Hang Tag',desc:'Branded card hang tag',supplier:'',color:'',size:'8cm x 5cm',placement:'Hood drawstring'}],
+bom:[{material:'French Terry',desc:'350gsm',color:'Charcoal Grey',supplier:'',width:'60"',qty:'1.5',unit:'yards'},{material:'Rib Knit',desc:'1x1 rib',color:'Charcoal Grey',supplier:'',width:'36"',qty:'0.3',unit:'yards'},{material:'Drawstring',desc:'Flat cotton',color:'Black',supplier:'',width:'',qty:'1',unit:'pc'},{material:'Thread',desc:'Matching polyester',color:'Charcoal Grey',supplier:'',width:'',qty:'1',unit:'cone'}],
+meas:[{point:'Chest (1" below armhole)',size:'M',meas:'24"',tol:'+/- 0.5"',unit:'inches'},{point:'Body Length (HPS to hem)',size:'M',meas:'28"',tol:'+/- 0.5"',unit:'inches'},{point:'Sleeve Length',size:'M',meas:'25"',tol:'+/- 0.5"',unit:'inches'},{point:'Hem Width',size:'M',meas:'18"',tol:'+/- 0.25"',unit:'inches'}],
+const:[{area:'Side seams',seam:'Overlocked',notes:'Serged together'},{area:'Shoulder seams',seam:'Plain',notes:'Topstitched'},{area:'Hem',seam:'Folded',notes:'Double needle coverstitch'}],
+stitch:[{area:'Side seams',type:'Overlock',spi:'12',allowance:'3/8"',construction:'Overlocked',notes:''},{area:'Hem',type:'Coverstitch',spi:'10',allowance:'1"',construction:'Folded',notes:'Double needle'}],
+color:[{name:'Charcoal Grey',pantone:'18-0601',swatch:'#4a4a4a',notes:'Main colorway'},{name:'Black',pantone:'19-0303',swatch:'#1a1a1a',notes:'2nd colorway'}],
+label:[{type:'Main Label',placement:'Center back neck',dimensions:'5cm x 2cm',material:'Woven',attachment:'Sewn in'},{type:'Size Tag',placement:'Below main label',dimensions:'3cm x 2cm',material:'Printed',attachment:'Sewn in'},{type:'Care Label',placement:'Left side seam',dimensions:'5cm x 7cm',material:'Printed satin',attachment:'Sewn in'}],
+packaging:[{item:'Poly Bag',material:'Clear PE',dimensions:'12" x 16"',qty:'1',notes:'Biodegradable'},{item:'Hang Tag',material:'Card stock',dimensions:'8cm x 5cm',qty:'1',notes:'Branded'}],
+grade:[{point:'Chest',xs:'22"',s:'23"',m:'24"',l:'25"',xl:'26"'}],
+sS(s);loadAll();renderAll();toast('Example hoodie loaded! \U0001f3af','success')})
 }
-function updateConfidential(){
-const b=document.getElementById('brand-name').value||'YOUR BRAND';
-document.querySelectorAll('.conf-brand').forEach(el=>el.textContent=b.toUpperCase())
-}
-
-function handleLogo(input){const f=input.files[0];if(!f)return;const r=new FileReader();r.onload=()=>compressImage(r.result,c=>{showLogo(c);const s=getStore();s.logoDataUrl=c;setStore(s)});r.readAsDataURL(f)}
-function showLogo(src){document.getElementById('logo-preview').innerHTML='<img src="'+escapeHTML(src)+'" alt="Logo">'}
-function newTechPack(){if(!confirm('Start a new tech pack? All data will be cleared.'))return;localStorage.removeItem(SK);location.reload()}
-function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.querySelector('.sidebar-overlay').classList.toggle('show')}
 
 // Navigation
 document.querySelectorAll('.nav-item').forEach(item=>{
@@ -397,337 +464,72 @@ document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
 document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
 item.classList.add('active');
 document.getElementById('page-'+item.dataset.page).classList.add('active');
-updatePageNumbers();
 if(window.innerWidth<=768)toggleSidebar()
 })});
 
-function updatePageNumbers(){
-const totalPages=document.querySelectorAll('.page').length;
-document.querySelectorAll('.page').forEach((p,i)=>{
-const el=document.getElementById('page-num-'+p.id.replace('page-',''));
-if(el)el.textContent=`Page ${i+1} of ${totalPages}`
-})}
-
-// Generic table renderer
-function renderTable(bodyId,cols,rows){
-const tbody=document.getElementById(bodyId);if(!tbody)return;tbody.innerHTML='';
+// Generic table
+function renderTable(bid,cols,rows){
+const tb=document.getElementById(bid);if(!tb)return;tb.innerHTML='';
 rows.forEach((row,i)=>{
 const tr=document.createElement('tr');
-cols.forEach(c=>{
-const td=document.createElement('td');
-if(c.type==='select'){
-const opts=(c.options||[]).map(o=>'<option'+(row[c.key]===o?' selected':'')+'>'+o+'</option>').join('');
-td.innerHTML='<select onchange="'+c.fn+'('+i+',\''+c.key+'\',this.value)">'+opts+'</select>'
-}else if(c.type==='color'){
-td.innerHTML='<input type="color" value="'+escapeHTML(row[c.key]||'#000000')+'" style="width:40px;height:30px;border:none;padding:0;cursor:pointer" onchange="'+c.fn+'('+i+',\''+c.key+'\',this.value)">'
-}else if(c.type==='textarea'){
-td.innerHTML='<textarea oninput="'+c.fn+'('+i+',\''+c.key+'\',this.value)" placeholder="'+escapeHTML(c.ph||'')+'">'+escapeHTML(row[c.key]||'')+'</textarea>'
-}else if(c.type==='img'){
-td.innerHTML='<input type="file" accept="image/*" style="font-size:11px" onchange="uploadImg(\''+c.storeKey+'\','+i+',\''+c.key+'\',this)">'+(row[c.key]?'<br><img src="'+row[c.key]+'" style="max-width:60px;max-height:40px;margin-top:4px">':'')
-}else{
-td.innerHTML='<input type="text" value="'+escapeHTML(row[c.key]||'')+'" placeholder="'+escapeHTML(c.ph||'')+'" oninput="'+c.fn+'('+i+',\''+c.key+'\',this.value)">'
-}
+cols.forEach(c=>{const td=document.createElement('td');
+if(c.type==='select'){td.innerHTML='<select onchange="uF(\''+c.s+'\','+i+',\''+c.k+'\',this.value)">'+(c.opts||[]).map(o=>'<option'+(row[c.k]===o?' selected':'')+'>'+o+'</option>').join('')+'</select>'}
+else if(c.type==='color'){td.innerHTML='<input type="color" value="'+eH(row[c.k]||'#000000')+'" style="width:40px;height:30px;border:none;padding:0;cursor:pointer" onchange="uF(\''+c.s+'\','+i+',\''+c.k+'\',this.value)">'}
+else if(c.type==='textarea'){td.innerHTML='<textarea oninput="uF(\''+c.s+'\','+i+',\''+c.k+'\',this.value)" placeholder="'+eH(c.p||'')+'">'+eH(row[c.k]||'')+'</textarea>'}
+else{td.innerHTML='<input type="text" value="'+eH(row[c.k]||'')+'" placeholder="'+eH(c.p||'')+'" oninput="uF(\''+c.s+'\','+i+',\''+c.k+'\',this.value)">'}
 tr.appendChild(td)});
-const td=document.createElement('td');td.innerHTML='<button class="del-btn" onclick="delRow(\''+cols[0].store+'\','+i+')">&times;</button>';tr.appendChild(td);
-tbody.appendChild(tr)})}
-
-function uploadImg(storeKey,i,key,input){const f=input.files[0];if(!f)return;const r=new FileReader();r.onload=()=>compressImage(r.result,c=>{const rows=getState(storeKey);rows[i][key]=c;setState(storeKey,rows);renderAll()});r.readAsDataURL(f)}
-
-// Row management
-function addRow(type){
-const defaults={
-fab:{name:'',desc:'',color:'',location:'Body',notes:''},
-trim:{type:'Zipper',desc:'',supplier:'',color:'',size:'',placement:'',photo:''},
-bom:{material:'',desc:'',color:'',supplier:'',width:'',qty:'',unit:''},
-meas:{point:'',size:'',meas:'',tol:'',unit:''},
-const:{area:'',seam:'Plain',notes:''},
-stitch:{area:'',type:'Single Needle',spi:'',allowance:'',construction:'Plain',notes:''},
-htm:{point:'',start:'',end:'',method:''},
-care:{type:'Wash',instruction:'',language:'EN',notes:''},
-grade:{point:'',xs:'',s:'',m:'',l:'',xl:''},
-grule:{point:'',xs_s:'',s_m:'',m_l:'',l_xl:'',xl_xxl:'',notes:''},
-proto:{point:'',spec:'',p1:'',p1c:'',p2:'',p2c:'',pps:'',tol:'',status:'Pending'},
-pattern:{date:new Date().toISOString().split('T')[0],proto:'1',comment:'',action:'',status:'Pending'},
-sewing:{date:new Date().toISOString().split('T')[0],proto:'1',comment:'',action:'',status:'Pending'},
-cost:{component:'',cost:'',qty:'',notes:''},
-color:{name:'',pantone:'',swatch:'#000000',notes:''},
-label:{type:'',placement:'',dimensions:'',material:'',attachment:''},
-pack:{item:'',material:'',dimensions:'',qty:'',notes:''},
-log:{date:new Date().toISOString().split('T')[0],version:'',change:'',by:'',status:'Pending'}
-};
-const rows=getState(type);rows.push({...defaults[type]});setState(type,rows);renderAll()
-}
-function delRow(type,i){const rows=getState(type);rows.splice(i,1);setState(type,rows);renderAll()}
-function updateField(type,i,key,val){const rows=getState(type);rows[i][key]=val;setState(type,rows)}
-
-// Sketch management
-function addSketch(type){
-const key=type==='sketches'?'sketches':'details';
-const rows=getState(key);rows.push({image:'',label:'',notes:''});setState(key,rows);renderSketches(type)
-}
-function delSketch(type,i){
-const key=type==='sketches'?'sketches':'details';
-const rows=getState(key);rows.splice(i,1);setState(key,rows);renderSketches(type)
-}
-function renderSketches(type){
-const key=type==='sketches'?'sketches':'details';
-const gridId=type==='sketches'?'sketch-grid':'detail-grid';
-const grid=document.getElementById(gridId);if(!grid)return;
-const rows=getState(key);grid.innerHTML='';
-if(!rows.length){grid.innerHTML='<div style="color:#888;font-size:13px;padding:20px">No sketches yet. Click "+ Add" to start.</div>';return}
-rows.forEach((r,i)=>{
-const card=document.createElement('div');card.className='sketch-card';
-const imgDiv=document.createElement('div');imgDiv.className='sketch-card-img';
-imgDiv.onclick=()=>document.getElementById('sf-'+type+'-'+i).click();
-if(r.image){const img=document.createElement('img');img.src=r.image;imgDiv.appendChild(img)}
-else{const sp=document.createElement('span');sp.textContent='Click to upload';imgDiv.appendChild(sp)}
-card.appendChild(imgDiv);
-const fi=document.createElement('input');fi.type='file';fi.accept='image/*';fi.style.display='none';fi.id='sf-'+type+'-'+i;
-fi.onchange=function(){const f=this.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>compressImage(rd.result,c=>{const rw=getState(key);rw[i].image=c;setState(key,rw);renderSketches(type)});rd.readAsDataURL(f)};
-card.appendChild(fi);
-const ld=document.createElement('div');ld.className='sketch-card-input';
-const ll=document.createElement('label');ll.textContent='Label';ld.appendChild(ll);
-const li=document.createElement('input');li.type='text';li.value=r.label||'';li.placeholder='e.g. Front View';
-li.oninput=function(){const rw=getState(key);rw[i].label=this.value;setState(key,rw)};ld.appendChild(li);card.appendChild(ld);
-const nd=document.createElement('div');nd.className='sketch-card-input';
-const nl=document.createElement('label');nl.textContent='Notes';nd.appendChild(nl);
-const ni=document.createElement('input');ni.type='text';ni.value=r.notes||'';ni.placeholder='Details...';
-ni.oninput=function(){const rw=getState(key);rw[i].notes=this.value;setState(key,rw)};nd.appendChild(ni);card.appendChild(nd);
-const dd=document.createElement('div');dd.style.padding='8px 12px';dd.style.textAlign='right';
-const db=document.createElement('button');db.className='del-btn';db.innerHTML='&times;';db.onclick=()=>delSketch(type,i);dd.appendChild(db);card.appendChild(dd);
-grid.appendChild(card)})}
-
-// Cost calculation
-function calcCost(){
-const rows=getState('cost');
-const total=rows.reduce((s,r)=>s+(parseFloat(r.cost)||0)*(parseInt(r.qty)||0),0);
-const el=document.getElementById('cost-total');if(el)el.textContent=total.toFixed(2)
-}
-
-// Color swatches
-function renderColor(){
-const tbody=document.getElementById('color-body');if(!tbody)return;const rows=getState('color');tbody.innerHTML='';
-rows.forEach((r,i)=>{
-const tr=document.createElement('tr');
-['name','pantone'].forEach(k=>{
-const td=document.createElement('td');td.innerHTML='<input value="'+escapeHTML(r[k]||'')+'" placeholder="'+(k==='name'?'e.g. Midnight Blue':'e.g. 19-4024')+'" oninput="updateField(\'color\',i,\''+k+'\',this.value)">'.replace('i',i);tr.appendChild(td)});
-const sw=document.createElement('td');sw.innerHTML='<input type="color" value="'+escapeHTML(r.swatch||'#000000')+'" style="width:40px;height:30px;border:none;padding:0;cursor:pointer" onchange="updateField(\'color\','+i+',\'swatch\',this.value)">';tr.appendChild(sw);
-const nt=document.createElement('td');nt.innerHTML='<input value="'+escapeHTML(r.notes||'')+'" placeholder="Notes" oninput="updateField(\'color\','+i+',\'notes\',this.value)">';tr.appendChild(nt);
-const dt=document.createElement('td');const db=document.createElement('button');db.className='del-btn';db.innerHTML='&times;';db.onclick=()=>delRow('color',i);dt.appendChild(db);tr.appendChild(dt);
-tbody.appendChild(tr)});calcCost()}
-
-// Main render
-function renderAll(){
-// Fabric Placement
-renderTable('fab-body',[
-{key:'name',ph:'Fabric name',fn:'updateField',store:'fab'},
-{key:'desc',ph:'Description',fn:'updateField',store:'fab'},
-{key:'color',ph:'Pantone/Color',fn:'updateField',store:'fab'},
-{key:'location',ph:'Location',fn:'updateField',store:'fab',type:'select',options:['Body','Lining','Pocket','Pocket Lining','Trim','Collar','Cuff','Waistband','Other']},
-{key:'notes',ph:'Placement notes',fn:'updateField',store:'fab'}
-],getState('fab'));
-
-// Trims
-renderTable('trim-body',[
-{key:'type',ph:'Type',fn:'updateField',store:'trim',type:'select',options:['Zipper','Button','Snap','Hook','Label','Hang Tag','Embroidery','Patch','Elastic','Ribbon','Rivet','Grommet','Other']},
-{key:'desc',ph:'Description',fn:'updateField',store:'trim'},
-{key:'supplier',ph:'Supplier',fn:'updateField',store:'trim'},
-{key:'color',ph:'Color',fn:'updateField',store:'trim'},
-{key:'size',ph:'Size/Dim',fn:'updateField',store:'trim'},
-{key:'placement',ph:'Placement',fn:'updateField',store:'trim'},
-{key:'photo',ph:'',fn:'updateField',store:'trim',type:'img',storeKey:'trim'}
-],getState('trim'));
-
-// BOM
-renderTable('bom-body',[
-{key:'material',ph:'Main Fabric',fn:'updateField',store:'bom'},
-{key:'desc',ph:'Description',fn:'updateField',store:'bom'},
-{key:'color',ph:'Color/Pantone',fn:'updateField',store:'bom'},
-{key:'supplier',ph:'Supplier',fn:'updateField',store:'bom'},
-{key:'width',ph:'Width',fn:'updateField',store:'bom'},
-{key:'qty',ph:'Qty',fn:'updateField',store:'bom'},
-{key:'unit',ph:'yards/pcs',fn:'updateField',store:'bom'}
-],getState('bom'));
-
-// Measurements
-renderTable('meas-body',[
-{key:'point',ph:'e.g. Chest',fn:'updateField',store:'meas'},
-{key:'size',ph:'e.g. M',fn:'updateField',store:'meas'},
-{key:'meas',ph:'22"',fn:'updateField',store:'meas'},
-{key:'tol',ph:'+/- 0.5"',fn:'updateField',store:'meas'},
-{key:'unit',ph:'inches/cm',fn:'updateField',store:'meas'}
-],getState('meas'));
-
-// Construction
-renderTable('const-body',[
-{key:'area',ph:'e.g. Side seam',fn:'updateField',store:'const'},
-{key:'seam',ph:'Seam type',fn:'updateField',store:'const',type:'select',options:['Plain','Felled','Bound','Overlocked','French','Welt','Lapped','Other']},
-{key:'notes',ph:'Notes',fn:'updateField',store:'const'}
-],getState('const'));
-
-// Stitch
-renderTable('stitch-body',[
-{key:'area',ph:'Area',fn:'updateField',store:'stitch'},
-{key:'type',ph:'Type',fn:'updateField',store:'stitch',type:'select',options:['Single Needle','Double Needle','Overlock','Flatlock','Chain','Safety','Bartack','Blind Hem','Coverstitch','Other']},
-{key:'spi',ph:'12-14',fn:'updateField',store:'stitch'},
-{key:'allowance',ph:'1/2"',fn:'updateField',store:'stitch'},
-{key:'construction',ph:'Construction',fn:'updateField',store:'stitch',type:'select',options:['Plain','Felled','Bound','Overlocked','French','Other']},
-{key:'notes',ph:'Notes',fn:'updateField',store:'stitch'}
-],getState('stitch'));
-
-// How to Measure
-renderTable('htm-body',[
-{key:'point',ph:'e.g. Chest',fn:'updateField',store:'htm'},
-{key:'start',ph:'Start point',fn:'updateField',store:'htm'},
-{key:'end',ph:'End point',fn:'updateField',store:'htm'},
-{key:'method',ph:'How to measure',fn:'updateField',store:'htm'}
-],getState('htm'));
-
-// Care Labels
-renderTable('care-body',[
-{key:'type',ph:'Symbol',fn:'updateField',store:'care',type:'select',options:['Wash','Dry','Iron','Bleach','Dry Clean','Special Care']},
-{key:'instruction',ph:'Instruction text',fn:'updateField',store:'care'},
-{key:'language',ph:'EN',fn:'updateField',store:'care'},
-{key:'notes',ph:'Notes',fn:'updateField',store:'care'}
-],getState('care'));
-
-// Grading
-renderTable('grade-body',[
-{key:'point',ph:'Measurement',fn:'updateField',store:'grade'},
-{key:'xs',ph:'',fn:'updateField',store:'grade'},
-{key:'s',ph:'',fn:'updateField',store:'grade'},
-{key:'m',ph:'',fn:'updateField',store:'grade'},
-{key:'l',ph:'',fn:'updateField',store:'grade'},
-{key:'xl',ph:'',fn:'updateField',store:'grade'}
-],getState('grade'));
-
-// Grading Rules
-renderTable('grule-body',[
-{key:'point',ph:'Measurement',fn:'updateField',store:'grule'},
-{key:'xs_s',ph:'',fn:'updateField',store:'grule'},
-{key:'s_m',ph:'',fn:'updateField',store:'grule'},
-{key:'m_l',ph:'',fn:'updateField',store:'grule'},
-{key:'l_xl',ph:'',fn:'updateField',store:'grule'},
-{key:'xl_xxl',ph:'',fn:'updateField',store:'grule'},
-{key:'notes',ph:'Notes',fn:'updateField',store:'grule'}
-],getState('grule'));
-
-// Proto Tracking
-const protoCols=[
-{key:'point',ph:'Measurement',fn:'updateField',store:'proto'},
-{key:'spec',ph:'Spec',fn:'updateField',store:'proto'},
-{key:'p1',ph:'P1 Actual',fn:'updateField',store:'proto'},
-{key:'p1c',ph:'P1 Comments',fn:'updateField',store:'proto'},
-{key:'p2',ph:'P2 Actual',fn:'updateField',store:'proto'},
-{key:'p2c',ph:'P2 Comments',fn:'updateField',store:'proto'},
-{key:'pps',ph:'PPS',fn:'updateField',store:'proto'},
-{key:'tol',ph:'+/-',fn:'updateField',store:'proto'},
-{key:'status',ph:'Status',fn:'updateField',store:'proto',type:'select',options:['Pending','Received','Approved','Rejected']}
-];
-renderTable('proto-body',protoCols,getState('proto'));
-
-// Comments - Pattern
-renderTable('pattern-body',[
-{key:'date',ph:'Date',fn:'updateField',store:'pattern'},
-{key:'proto',ph:'#',fn:'updateField',store:'pattern'},
-{key:'comment',ph:'Comment',fn:'updateField',store:'pattern',type:'textarea'},
-{key:'action',ph:'Action taken',fn:'updateField',store:'pattern',type:'textarea'},
-{key:'status',ph:'Status',fn:'updateField',store:'pattern',type:'select',options:['Pending','In Progress','Done']}
-],getState('pattern'));
-
-// Comments - Sewing
-renderTable('sewing-body',[
-{key:'date',ph:'Date',fn:'updateField',store:'sewing'},
-{key:'proto',ph:'#',fn:'updateField',store:'sewing'},
-{key:'comment',ph:'Comment',fn:'updateField',store:'sewing',type:'textarea'},
-{key:'action',ph:'Action taken',fn:'updateField',store:'sewing',type:'textarea'},
-{key:'status',ph:'Status',fn:'updateField',store:'sewing',type:'select',options:['Pending','In Progress','Done']}
-],getState('sewing'));
-
-// Cost
-const costTbody=document.getElementById('cost-body');if(costTbody){
-const rows=getState('cost');costTbody.innerHTML='';
-rows.forEach((r,i)=>{
-const sub=(parseFloat(r.cost)||0)*(parseInt(r.qty)||0);
-const tr=document.createElement('tr');
-tr.innerHTML='<td><input value="'+escapeHTML(r.component||'')+'" placeholder="Component" oninput="updateField(\'cost\','+i+',\'component\',this.value)"></td><td><input value="'+escapeHTML(r.cost||'')+'" placeholder="0.00" type="number" step="0.01" oninput="updateField(\'cost\','+i+',\'cost\',this.value)"></td><td><input value="'+escapeHTML(r.qty||'')+'" placeholder="1" type="number" oninput="updateField(\'cost\','+i+',\'qty\',this.value)"></td><td>$'+sub.toFixed(2)+'</td><td><input value="'+escapeHTML(r.notes||'')+'" placeholder="Notes" oninput="updateField(\'cost\','+i+',\'notes\',this.value)"></td><td><button class="del-btn" onclick="delRow(\'cost\','+i+')">&times;</button></td>';
-costTbody.appendChild(tr)});calcCost()}
-
-// Colorways
-renderColor();
-
-// Labels
-renderTable('label-body',[
-{key:'type',ph:'e.g. Main label',fn:'updateField',store:'label'},
-{key:'placement',ph:'Center back neck',fn:'updateField',store:'label'},
-{key:'dimensions',ph:'2" x 1"',fn:'updateField',store:'label'},
-{key:'material',ph:'Woven',fn:'updateField',store:'label'},
-{key:'attachment',ph:'Sewn in',fn:'updateField',store:'label'}
-],getState('label'));
-
-// Packaging
-renderTable('pack-body',[
-{key:'item',ph:'e.g. Poly bag',fn:'updateField',store:'pack'},
-{key:'material',ph:'Clear PE',fn:'updateField',store:'pack'},
-{key:'dimensions',ph:'10" x 14"',fn:'updateField',store:'pack'},
-{key:'qty',ph:'1',fn:'updateField',store:'pack'},
-{key:'notes',ph:'Notes',fn:'updateField',store:'pack'}
-],getState('pack'));
-
-// Changelog
-renderTable('log-body',[
-{key:'date',ph:'Date',fn:'updateField',store:'log'},
-{key:'version',ph:'v1.0',fn:'updateField',store:'log'},
-{key:'change',ph:'What changed',fn:'updateField',store:'log'},
-{key:'by',ph:'Who',fn:'updateField',store:'log'},
-{key:'status',ph:'Status',fn:'updateField',store:'log',type:'select',options:['Pending','In Progress','Done']}
-],getState('log'));
+const td=document.createElement('td');td.innerHTML='<button class="del-btn" onclick="dR(\''+cols[0].s+'\','+i+')" title="Delete row">&times;</button>';tr.appendChild(td);tb.appendChild(tr)})}
+function addRow(t){const d={fab:{name:'',desc:'',color:'',location:'Body',notes:''},trim:{type:'Zipper',desc:'',supplier:'',color:'',size:'',placement:''},bom:{material:'',desc:'',color:'',supplier:'',width:'',qty:'',unit:''},meas:{point:'',size:'',meas:'',tol:'',unit:''},const:{area:'',seam:'Plain',notes:''},stitch:{area:'',type:'Single Needle',spi:'',allowance:'',construction:'Plain',notes:''},htm:{point:'',start:'',end:'',method:''},care:{type:'Wash',instruction:'',language:'EN',notes:''},grade:{point:'',xs:'',s:'',m:'',l:'',xl:''},grule:{point:'',xs_s:'',s_m:'',m_l:'',l_xl:'',xl_xxl:'',notes:''},proto:{point:'',spec:'',p1:'',p1c:'',p2:'',p2c:'',pps:'',tol:'',status:'Pending'},pattern:{date:new Date().toISOString().split('T')[0],proto:'1',comment:'',action:'',status:'Pending'},sewing:{date:new Date().toISOString().split('T')[0],proto:'1',comment:'',action:'',status:'Pending'},cost:{component:'',cost:'',qty:'',notes:''},color:{name:'',pantone:'',swatch:'#000000',notes:''},label:{type:'',placement:'',dimensions:'',material:'',attachment:''},pack:{item:'',material:'',dimensions:'',qty:'',notes:''},log:{date:new Date().toISOString().split('T')[0],version:'',change:'',by:'',status:'Pending'}};const r=gSt(t);r.push({...d[t]});sSt(t,r);renderAll();toast('Row added','info')}
+function dR(t,i){showConfirm('Delete this row?','This will remove the data permanently.',()=>{const r=gSt(t);r.splice(i,1);sSt(t,r);renderAll();toast('Row deleted','info')})}
+function uF(t,i,k,v){const r=gSt(t);if(r[i])r[i][k]=v;sSt(t,r)}
 
 // Sketches
-renderSketches('sketches');
-renderSketches('details');
-updatePageNumbers()
-}
+function addSketch(t){const k=t==='sketches'?'sketches':'details';const r=gSt(k);r.push({image:'',label:'',notes:''});sSt(k,r);renderSketches(t)}
+function renderSketches(t){const k=t==='sketches'?'sketches':'details';const gid=t==='sketches'?'sketch-grid':'detail-grid';const g=document.getElementById(gid);if(!g)return;const rows=gSt(k);g.innerHTML='';if(!rows.length){g.innerHTML='<div style="color:#888;font-size:13px;padding:20px">No sketches yet. Click "+ Add Sketch" to upload drawings of your garment.</div>';return}
+rows.forEach((r,i)=>{const c=document.createElement('div');c.className='sketch-card';const id=document.createElement('div');id.className='sketch-card-img';id.onclick=()=>document.getElementById('sf-'+t+'-'+i).click();if(r.image){const img=document.createElement('img');img.src=r.image;id.appendChild(img)}else{const sp=document.createElement('span');sp.textContent='\U0001f4f7 Click to upload';id.appendChild(sp)}c.appendChild(id);const fi=document.createElement('input');fi.type='file';fi.accept='image/*';fi.style.display='none';fi.id='sf-'+t+'-'+i;fi.onchange=function(){const f=this.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>cImg(rd.result,cp=>{const rw=gSt(k);rw[i].image=cp;sSt(k,rw);renderSketches(t)});rd.readAsDataURL(f)};c.appendChild(fi);const ld=document.createElement('div');ld.className='sketch-card-input';const ll=document.createElement('label');ll.textContent='Label';ld.appendChild(ll);const li=document.createElement('input');li.type='text';li.value=r.label||'';li.placeholder='e.g. Front View';li.oninput=function(){const rw=gSt(k);rw[i].label=this.value;sSt(k,rw)};ld.appendChild(li);c.appendChild(ld);const nd=document.createElement('div');nd.className='sketch-card-input';const nl=document.createElement('label');nl.textContent='Notes';nd.appendChild(nl);const ni=document.createElement('input');ni.type='text';ni.value=r.notes||'';ni.placeholder='Any details...';ni.oninput=function(){const rw=gSt(k);rw[i].notes=this.value;sSt(k,rw)};nd.appendChild(ni);c.appendChild(nd);const dd=document.createElement('div');dd.style.padding='8px 12px';dd.style.textAlign='right';const db=document.createElement('button');db.className='del-btn';db.innerHTML='&times;';db.onclick=()=>{showConfirm('Delete sketch?','',()=>{const rw=gSt(k);rw.splice(i,1);sSt(k,rw);renderSketches(t)})};dd.appendChild(db);c.appendChild(dd);g.appendChild(c)})}
+
+function renderColor(){const tb=document.getElementById('color-body');if(!tb)return;const rows=gSt('color');tb.innerHTML='';rows.forEach((r,i)=>{const tr=document.createElement('tr');['name','pantone'].forEach(k=>{const td=document.createElement('td');td.innerHTML='<input value="'+eH(r[k]||'')+'" placeholder="'+(k==='name'?'e.g. Midnight Blue':'e.g. 19-4024 (optional)')+'" oninput="uF(\'color\','+i+',\''+k+'\',this.value)">';tr.appendChild(td)});const sw=document.createElement('td');sw.innerHTML='<input type="color" value="'+eH(r.swatch||'#000000')+'" style="width:40px;height:30px;border:none;padding:0;cursor:pointer" onchange="uF(\'color\','+i+',\'swatch\',this.value)">';tr.appendChild(sw);const nt=document.createElement('td');nt.innerHTML='<input value="'+eH(r.notes||'')+'" placeholder="Notes" oninput="uF(\'color\','+i+',\'notes\',this.value)">';tr.appendChild(nt);const dt=document.createElement('td');const db=document.createElement('button');db.className='del-btn';db.innerHTML='&times;';db.onclick=()=>dR('color',i);dt.appendChild(db);tr.appendChild(dt);tb.appendChild(tr)})}
+
+function calcCost(){const r=gSt('cost');const t=r.reduce((s,x)=>s+(parseFloat(x.cost)||0)*(parseInt(x.qty)||0),0);const e=document.getElementById('cost-total');if(e)e.textContent=t.toFixed(2)}
+
+function renderAll(){
+renderTable('fab-body',[{k:'name',p:'e.g. French Terry',fn:'uF',s:'fab'},{k:'desc',p:'Weight, feel',fn:'uF',s:'fab'},{k:'color',p:'Color name',fn:'uF',s:'fab'},{k:'location',p:'',fn:'uF',s:'fab',type:'select',opts:['Body','Lining','Hood','Hood Lining','Pocket','Pocket Lining','Cuff','Hem','Collar','Trim','Other']},{k:'notes',p:'Notes',fn:'uF',s:'fab'}],gSt('fab'));
+renderTable('trim-body',[{k:'type',p:'',fn:'uF',s:'trim',type:'select',opts:['Drawstring','Zipper','Button','Snap','Hook','Elastic','Label','Hang Tag','Embroidery','Patch','Rivet','Grommet','Other']},{k:'desc',p:'Description',fn:'uF',s:'trim'},{k:'supplier',p:'Supplier',fn:'uF',s:'trim'},{k:'color',p:'Color',fn:'uF',s:'trim'},{k:'size',p:'Size',fn:'uF',s:'trim'},{k:'placement',p:'Where on garment',fn:'uF',s:'trim'}],gSt('trim'));
+renderTable('bom-body',[{k:'material',p:'e.g. Cotton',fn:'uF',s:'bom'},{k:'desc',p:'Description',fn:'uF',s:'bom'},{k:'color',p:'Color',fn:'uF',s:'bom'},{k:'supplier',p:'Supplier',fn:'uF',s:'bom'},{k:'width',p:'e.g. 60"',fn:'uF',s:'bom'},{k:'qty',p:'Amount',fn:'uF',s:'bom'},{k:'unit',p:'yards/m/p',fn:'uF',s:'bom'}],gSt('bom'));
+renderTable('meas-body',[{k:'point',p:'e.g. Chest width',fn:'uF',s:'meas'},{k:'size',p:'e.g. M',fn:'uF',s:'meas'},{k:'meas',p:'e.g. 24"',fn:'uF',s:'meas'},{k:'tol',p:'+/- 0.5"',fn:'uF',s:'meas'},{k:'unit',p:'in/cm',fn:'uF',s:'meas'}],gSt('meas'));
+renderTable('const-body',[{k:'area',p:'e.g. Side seam',fn:'uF',s:'const'},{k:'seam',p:'',fn:'uF',s:'const',type:'select',opts:['Plain','Overlocked','Felled','Bound','French','Lapped','Other']},{k:'notes',p:'Notes',fn:'uF',s:'const'}],gSt('const'));
+renderTable('stitch-body',[{k:'area',p:'Area',fn:'uF',s:'stitch'},{k:'type',p:'',fn:'uF',s:'stitch',type:'select',opts:['Single Needle','Double Needle','Overlock','Flatlock','Chain','Safety','Bartack','Coverstitch','Blind Hem','Other']},{k:'spi',p:'12-14',fn:'uF',s:'stitch'},{k:'allowance',p:'1/2"',fn:'uF',s:'stitch'},{k:'construction',p:'',fn:'uF',s:'stitch',type:'select',opts:['Plain','Overlocked','Felled','Bound','French','Other']},{k:'notes',p:'Notes',fn:'uF',s:'stitch'}],gSt('stitch'));
+renderTable('htm-body',[{k:'point',p:'e.g. Chest',fn:'uF',s:'htm'},{k:'start',p:'Where tape starts',fn:'uF',s:'htm'},{k:'end',p:'Where tape ends',fn:'uF',s:'htm'},{k:'method',p:'How to measure',fn:'uF',s:'htm'}],gSt('htm'));
+renderTable('care-body',[{k:'type',p:'',fn:'uF',s:'care',type:'select',opts:['Wash','Dry','Iron','Bleach','Dry Clean','Special Care']},{k:'instruction',p:'e.g. Machine wash cold',fn:'uF',s:'care'},{k:'language',p:'EN',fn:'uF',s:'care'},{k:'notes',p:'Notes',fn:'uF',s:'care'}],gSt('care'));
+renderTable('grade-body',[{k:'point',p:'Measurement',fn:'uF',s:'grade'},{k:'xs',p:'',fn:'uF',s:'grade'},{k:'s',p:'',fn:'uF',s:'grade'},{k:'m',p:'',fn:'uF',s:'grade'},{k:'l',p:'',fn:'uF',s:'grade'},{k:'xl',p:'',fn:'uF',s:'grade'}],gSt('grade'));
+renderTable('grule-body',[{k:'point',p:'Measurement',fn:'uF',s:'grule'},{k:'xs_s',p:'+/-',fn:'uF',s:'grule'},{k:'s_m',p:'',fn:'uF',s:'grule'},{k:'m_l',p:'',fn:'uF',s:'grule'},{k:'l_xl',p:'',fn:'uF',s:'grule'},{k:'xl_xxl',p:'',fn:'uF',s:'grule'},{k:'notes',p:'Notes',fn:'uF',s:'grule'}],gSt('grule'));
+renderTable('proto-body',[{k:'point',p:'Measurement',fn:'uF',s:'proto'},{k:'spec',p:'What you want',fn:'uF',s:'proto'},{k:'p1',p:'1st sample',fn:'uF',s:'proto'},{k:'p1c',p:'Notes',fn:'uF',s:'proto'},{k:'p2',p:'2nd sample',fn:'uF',s:'proto'},{k:'p2c',p:'Notes',fn:'uF',s:'proto'},{k:'pps',p:'Final',fn:'uF',s:'proto'},{k:'tol',p:'+/-',fn:'uF',s:'proto'},{k:'status',p:'',fn:'uF',s:'proto',type:'select',opts:['Pending','Received','Approved','Rejected']}],gSt('proto'));
+renderTable('pattern-body',[{k:'date',p:'Date',fn:'uF',s:'pattern'},{k:'proto',p:'1, 2, PPS',fn:'uF',s:'pattern'},{k:'comment',p:'What needs changing',fn:'uF',s:'pattern',type:'textarea'},{k:'action',p:'What was done',fn:'uF',s:'pattern',type:'textarea'},{k:'status',p:'',fn:'uF',s:'pattern',type:'select',opts:['Pending','In Progress','Done']}],gSt('pattern'));
+renderTable('sewing-body',[{k:'date',p:'Date',fn:'uF',s:'sewing'},{k:'proto',p:'1, 2, PPS',fn:'uF',s:'sewing'},{k:'comment',p:'What needs changing',fn:'uF',s:'sewing',type:'textarea'},{k:'action',p:'What was done',fn:'uF',s:'sewing',type:'textarea'},{k:'status',p:'',fn:'uF',s:'sewing',type:'select',opts:['Pending','In Progress','Done']}],gSt('sewing'));
+const ct=document.getElementById('cost-body');if(ct){const r=gSt('cost');ct.innerHTML='';r.forEach((x,i)=>{const sub=(parseFloat(x.cost)||0)*(parseInt(x.qty)||0);const tr=document.createElement('tr');tr.innerHTML='<td><input value="'+eH(x.component||'')+'" placeholder="e.g. Fabric" oninput="uF(\'cost\','+i+',\'component\',this.value)"></td><td><input value="'+eH(x.cost||'')+'" placeholder="0.00" type="number" step="0.01" oninput="uF(\'cost\','+i+',\'cost\',this.value)"></td><td><input value="'+eH(x.qty||'')+'" placeholder="1" type="number" oninput="uF(\'cost\','+i+',\'qty\',this.value)"></td><td>$'+sub.toFixed(2)+'</td><td><input value="'+eH(x.notes||'')+'" placeholder="Notes" oninput="uF(\'cost\','+i+',\'notes\',this.value)"></td><td><button class="del-btn" onclick="dR(\'cost\','+i+')">&times;</button></td>';ct.appendChild(tr)});calcCost()}
+renderColor();
+renderTable('label-body',[{k:'type',p:'e.g. Main label',fn:'uF',s:'label'},{k:'placement',p:'Center back neck',fn:'uF',s:'label'},{k:'dimensions',p:'5cm x 2cm',fn:'uF',s:'label'},{k:'material',p:'Woven/Printed',fn:'uF',s:'label'},{k:'attachment',p:'Sewn in',fn:'uF',s:'label'}],gSt('label'));
+renderTable('pack-body',[{k:'item',p:'e.g. Poly bag',fn:'uF',s:'pack'},{k:'material',p:'Clear PE',fn:'uF',s:'pack'},{k:'dimensions',p:'12" x 16"',fn:'uF',s:'pack'},{k:'qty',p:'1',fn:'uF',s:'pack'},{k:'notes',p:'Notes',fn:'uF',s:'pack'}],gSt('pack'));
+renderTable('log-body',[{k:'date',p:'Date',fn:'uF',s:'log'},{k:'version',p:'v1.0',fn:'uF',s:'log'},{k:'change',p:'What changed',fn:'uF',s:'log'},{k:'by',p:'Who',fn:'uF',s:'log'},{k:'status',p:'',fn:'uF',s:'log',type:'select',opts:['Pending','In Progress','Done']}],gSt('log'));
+renderSketches('sketches');renderSketches('details');updateBadges()}
 
 // PDF Export
 async function exportPDF(){
-if(typeof html2canvas==='undefined'||typeof jspdf==='undefined'){alert('PDF libraries failed to load.');return}
-const overlay=document.getElementById('export-overlay');const statusEl=document.getElementById('export-status');const btn=document.querySelector('.export-btn');
-overlay.classList.add('show');btn.disabled=true;
-try{
-const{jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','a4');const pw=210,ph=297,mg=15;
-const pageIds=Array.from(document.querySelectorAll('.page')).map(p=>p.id.replace('page-',''));
-for(let pi=0;pi<pageIds.length;pi++){
-statusEl.textContent=`Rendering: ${pageIds[pi]} (${pi+1}/${pageIds.length})`;
-const el=document.getElementById('page-'+pageIds[pi]);
-const od=el.style.display,op=el.style.position,ol=el.style.left,ow=el.style.width;
-el.style.display='block';el.style.position='absolute';el.style.left='-9999px';el.style.width='800px';el.style.background='#fff';el.style.padding='20px';
-try{
-const canvas=await html2canvas(el,{scale:1.5,useCORS:true,logging:false,backgroundColor:'#ffffff'});
-const imgData=canvas.toDataURL('image/jpeg',.95);const iw=pw-mg*2;const ih=(canvas.height*iw)/canvas.width;
-if(pi>0)pdf.addPage();pdf.setFontSize(8);pdf.setTextColor(150);
-const b=document.getElementById('brand-name').value||'EasyTechPack';const st=document.getElementById('style-name').value||'';
-pdf.text(`${b} - ${st} - Page ${pi+1}`,mg,10);
-if(ih>ph-mg*2){
-const sp=Math.ceil(ih/(ph-mg*2));
-for(let s=0;s<sp;s++){
-if(s>0){pdf.addPage();pdf.setFontSize(8);pdf.setTextColor(150);pdf.text(`${b} - ${st} - Page ${pi+1}.${s+1}`,mg,10)}
-const sy=s*(ph-mg*2)*(canvas.width/iw);const sh=Math.min((ph-mg*2)*(canvas.width/iw),canvas.height-sy);
-const tc=document.createElement('canvas');tc.width=canvas.width;tc.height=sh;tc.getContext('2d').drawImage(canvas,0,sy,canvas.width,sh,0,0,canvas.width,sh);
-const ti=tc.toDataURL('image/jpeg',.95);const rh=(sh*iw)/canvas.width;
-pdf.addImage(ti,'JPEG',mg,15,iw,Math.min(rh,ph-30))}}else{pdf.addImage(imgData,'JPEG',mg,15,iw,ih)}
-}catch(e){console.error('PDF error:',pageIds[pi],e)}
-el.style.display=od;el.style.position=op;el.style.left=ol;el.style.width=ow;el.style.background='';el.style.padding=''}
-const bn=(document.getElementById('brand-name').value||'TechPack').replace(/\s+/g,'-');
-const sn=(document.getElementById('style-name').value||'Style').replace(/\s+/g,'-');
-pdf.save(`${bn}_${sn}.pdf`)}catch(e){alert('Export failed: '+e.message)}
-overlay.classList.remove('show');btn.disabled=false}
+if(typeof html2canvas==='undefined'){toast('PDF library not loaded. Check internet.','error');return}
+const ov=document.getElementById('export-overlay');const st=document.getElementById('export-status');
+ov.classList.add('show');
+try{const{jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','a4');const pw=210,ph=297,mg=15;
+const pids=Array.from(document.querySelectorAll('.page')).map(p=>p.id.replace('page-',''));
+for(let pi=0;pi<pids.length;pi++){st.textContent='Rendering: '+pids[pi]+' ('+(pi+1)+'/'+pids.length+')';
+const el=document.getElementById('page-'+pids[pi]);el.style.display='block';el.style.position='absolute';el.style.left='-9999px';el.style.width='800px';el.style.background='#fff';el.style.padding='20px';
+try{const cv=await html2canvas(el,{scale:1.5,useCORS:true,logging:false,backgroundColor:'#ffffff'});
+const id=cv.toDataURL('image/jpeg',.95);const iw=pw-mg*2;const ih=(cv.height*iw)/cv.width;
+if(pi>0)pdf.addPage();pdf.setFontSize(8);pdf.setTextColor(150);const b=document.getElementById('brand-name').value||'EasyTechPack';const sn=document.getElementById('style-name').value||'';pdf.text(b+' - '+sn+' - Page '+(pi+1),mg,10);
+if(ih>ph-mg*2){const sp=Math.ceil(ih/(ph-mg*2));for(let s=0;s<sp;s++){if(s>0){pdf.addPage();pdf.setFontSize(8);pdf.setTextColor(150)}const sy=s*(ph-mg*2)*(cv.width/iw);const sh=Math.min((ph-mg*2)*(cv.width/iw),cv.height-sy);const tc=document.createElement('canvas');tc.width=cv.width;tc.height=sh;tc.getContext('2d').drawImage(cv,0,sy,cv.width,sh,0,0,cv.width,sh);const ti=tc.toDataURL('image/jpeg',.95);pdf.addImage(ti,'JPEG',mg,15,iw,Math.min((sh*iw)/cv.width,ph-30))}}else{pdf.addImage(id,'JPEG',mg,15,iw,ih)}}catch(e){console.error('PDF error:',pids[pi])}
+el.style.display='';el.style.position='';el.style.left='';el.style.width='';el.style.background='';el.style.padding=''}
+const bn=(document.getElementById('brand-name').value||'TechPack').replace(/\s+/g,'-');const sn2=(document.getElementById('style-name').value||'Style').replace(/\s+/g,'-');pdf.save(bn+'_'+sn2+'.pdf');toast('PDF downloaded! \u2705','success')}catch(e){toast('Export failed: '+e.message,'error')}
+ov.classList.remove('show')}
 
-// Init
-function init(){
-loadAll();renderAll();
-if(!document.getElementById('pack-date').value){document.getElementById('pack-date').value=new Date().toISOString().split('T')[0];saveAll()}}
+function init(){loadAll();renderAll();if(!document.getElementById('pack-date').value){document.getElementById('pack-date').value=new Date().toISOString().split('T')[0];saveAll()}}
 init();
-</script>
-</body>
-</html>
+</script></body></html>
