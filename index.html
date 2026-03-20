@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EasyTechPack</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #222; display: flex; height: 100vh; overflow: hidden; }
+
+  /* Sidebar */
+  .sidebar { width: 240px; background: #1a1a2e; color: #fff; display: flex; flex-direction: column; flex-shrink: 0; z-index: 100; }
+  .sidebar-header { padding: 20px; border-bottom: 1px solid #333; }
+  .sidebar-header h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
+  .sidebar-header p { font-size: 11px; color: #888; margin-top: 4px; }
+  .sidebar-nav { flex: 1; overflow-y: auto; padding: 10px 0; }
+  .nav-item { padding: 12px 20px; cursor: pointer; font-size: 14px; color: #aaa; transition: all 0.15s; display: flex; align-items: center; gap: 10px; }
+  .nav-item:hover { background: #16213e; color: #fff; }
+  .nav-item.active { background: #0f3460; color: #fff; border-left: 3px solid #e94560; }
+  .nav-icon { width: 18px; text-align: center; font-size: 14px; }
+  .sidebar-footer { padding: 15px 20px; border-top: 1px solid #333; }
+
+  /* Mobile hamburger */
+  .menu-toggle { display: none; position: fixed; top: 12px; left: 12px; z-index: 200; background: #1a1a2e; color: #fff; border: none; border-radius: 6px; padding: 8px 12px; font-size: 18px; cursor: pointer; }
+  .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99; }
+
+  /* Export button */
+  .export-btn { width: 100%; padding: 10px; background: #e94560; color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; margin-bottom: 8px; }
+  .export-btn:hover { background: #c73b54; }
+  .export-btn:disabled { background: #666; cursor: not-allowed; }
+  .new-btn { width: 100%; padding: 8px; background: transparent; color: #888; border: 1px solid #444; border-radius: 6px; font-size: 12px; cursor: pointer; }
+  .new-btn:hover { color: #fff; border-color: #888; }
+
+  /* Save indicator */
+  .save-indicator { position: fixed; top: 12px; right: 20px; font-size: 11px; color: #4caf50; opacity: 0; transition: opacity 0.3s; z-index: 50; }
+  .save-indicator.show { opacity: 1; }
+
+  /* Main content */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* Top bar */
+  .topbar { background: #fff; border-bottom: 1px solid #ddd; padding: 12px 30px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; flex-wrap: wrap; gap: 10px; }
+  .topbar-fields { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+  .topbar-fields label { font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+  .topbar-fields input { border: 1px solid #ddd; border-radius: 4px; padding: 6px 10px; font-size: 13px; width: 160px; }
+  .topbar-fields input:focus { outline: none; border-color: #0f3460; }
+
+  /* Page content */
+  .page-content { flex: 1; overflow-y: auto; padding: 30px; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .page-subtitle { font-size: 13px; color: #888; margin-bottom: 24px; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  th { background: #f8f9fa; font-size: 11px; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 0.5px; padding: 12px 14px; text-align: left; border-bottom: 2px solid #e9ecef; }
+  td { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+  tr:last-child td { border-bottom: none; }
+  td input { border: none; background: transparent; width: 100%; font-size: 13px; padding: 4px 0; }
+  td input:focus { outline: none; background: #fffbe6; }
+  td select { border: none; background: transparent; font-size: 13px; width: 100%; }
+
+  /* Add row button */
+  .add-row { padding: 8px 16px; background: #f0f0f0; border: 1px dashed #ccc; border-radius: 6px; color: #888; font-size: 13px; cursor: pointer; width: 100%; margin-top: 5px; }
+  .add-row:hover { background: #e8e8e8; color: #555; border-color: #999; }
+
+  /* Delete button */
+  .del-btn { background: none; border: none; color: #ccc; cursor: pointer; font-size: 16px; padding: 0 5px; }
+  .del-btn:hover { color: #e94560; }
+
+  /* Logo upload */
+  .logo-upload { display: flex; align-items: center; gap: 20px; margin-bottom: 20px; }
+  .logo-preview { width: 120px; height: 120px; border: 2px dashed #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #fafafa; cursor: pointer; }
+  .logo-preview img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .logo-preview span { font-size: 12px; color: #aaa; }
+  .logo-upload input[type="file"] { font-size: 13px; }
+
+  /* Cover page */
+  .cover-box { background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); padding: 40px; max-width: 600px; }
+  .cover-row { margin-bottom: 16px; }
+  .cover-row label { display: block; font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .cover-row input, .cover-row textarea { width: 100%; border: 1px solid #ddd; border-radius: 4px; padding: 8px 12px; font-size: 14px; }
+  .cover-row textarea { height: 80px; resize: vertical; font-family: inherit; }
+  .cover-row input:focus, .cover-row textarea:focus { outline: none; border-color: #0f3460; }
+
+  /* Sketch upload */
+  .sketch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 20px; }
+  .sketch-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); overflow: hidden; }
+  .sketch-card-img { height: 200px; background: #fafafa; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #eee; overflow: hidden; cursor: pointer; }
+  .sketch-card-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .sketch-card-img span { font-size: 12px; color: #aaa; }
+  .sketch-card-input { padding: 12px; }
+  .sketch-card-input label { font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; }
+  .sketch-card-input input { width: 100%; border: 1px solid #ddd; border-radius: 4px; padding: 6px 10px; font-size: 13px; margin-top: 4px; }
+  .sketch-card-input input:focus { outline: none; border-color: #0f3460; }
+
+  /* Export overlay */
+  .export-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; }
+  .export-overlay.show { display: flex; }
+  .export-box { background: #fff; border-radius: 12px; padding: 40px; text-align: center; max-width: 400px; }
+  .export-box h2 { margin-bottom: 10px; }
+  .export-box p { color: #666; margin-bottom: 20px; }
+  .export-box .spinner { width: 40px; height: 40px; border: 3px solid #eee; border-top-color: #e94560; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 15px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Section headers */
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .sidebar { position: fixed; left: -240px; top: 0; height: 100vh; transition: left 0.25s ease; }
+    .sidebar.open { left: 0; }
+    .menu-toggle { display: block; }
+    .sidebar-overlay.show { display: block; }
+    .topbar { padding: 12px 16px 12px 50px; }
+    .topbar-fields { gap: 10px; }
+    .topbar-fields input { width: 120px; }
+    .page-content { padding: 16px; }
+    .sketch-grid { grid-template-columns: 1fr; }
+    .cover-box { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Mobile menu toggle -->
+<button class="menu-toggle" id="menu-toggle" onclick="toggleSidebar()">☰</button>
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<!-- Save indicator -->
+<div class="save-indicator" id="save-indicator">✓ Saved</div>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h1>📐 EasyTechPack</h1>
+    <p>Clothing Tech Pack Builder</p>
+  </div>
+  <div class="sidebar-nav" id="sidebar-nav">
+    <div class="nav-item active" data-page="cover"><span class="nav-icon">📋</span> Cover Page</div>
+    <div class="nav-item" data-page="sketches"><span class="nav-icon">✏️</span> Sketches</div>
+    <div class="nav-item" data-page="bom"><span class="nav-icon">🧵</span> Bill of Materials</div>
+    <div class="nav-item" data-page="measurements"><span class="nav-icon">📏</span> Measurement Specs</div>
+    <div class="nav-item" data-page="construction"><span class="nav-icon">🪡</span> Construction Details</div>
+    <div class="nav-item" data-page="grading"><span class="nav-icon">📐</span> Size Grading</div>
+    <div class="nav-item" data-page="cost"><span class="nav-icon">💰</span> Cost Sheet</div>
+    <div class="nav-item" data-page="colorways"><span class="nav-icon">🎨</span> Colorways</div>
+    <div class="nav-item" data-page="labels"><span class="nav-icon">🏷️</span> Labels & Branding</div>
+    <div class="nav-item" data-page="packaging"><span class="nav-icon">📦</span> Packaging</div>
+    <div class="nav-item" data-page="changelog"><span class="nav-icon">📝</span> Change Log</div>
+  </div>
+  <div class="sidebar-footer">
+    <button class="export-btn" id="export-btn" onclick="exportPDF()">📄 Export as PDF</button>
+    <button class="new-btn" onclick="newTechPack()">🗑️ New Tech Pack</button>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="main">
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="topbar-fields">
+      <div><label>Brand Name</label><br><input type="text" id="brand-name" placeholder="Your Brand" oninput="debouncedSave()"></div>
+      <div><label>Style Name</label><br><input type="text" id="style-name" placeholder="Style #001" oninput="debouncedSave()"></div>
+      <div><label>Date</label><br><input type="date" id="pack-date" oninput="debouncedSave()"></div>
+      <div><label>Version</label><br><input type="text" id="pack-version" placeholder="v1.0" oninput="debouncedSave()"></div>
+    </div>
+  </div>
+
+  <div class="page-content">
+
+    <!-- COVER PAGE -->
+    <div class="page active" id="page-cover">
+      <h2 class="page-title">Cover Page</h2>
+      <p class="page-subtitle">Brand identity and basic style information</p>
+      <div class="cover-box">
+        <div class="logo-upload">
+          <div class="logo-preview" id="logo-preview" onclick="document.getElementById('logo-input').click()">
+            <span>Click to upload logo</span>
+          </div>
+          <input type="file" id="logo-input" accept="image/*" onchange="handleLogo(this)">
+        </div>
+        <div class="cover-row"><label>Designer Name</label><input type="text" id="designer-name" placeholder="Designer name" oninput="debouncedSave()"></div>
+        <div class="cover-row"><label>Season</label><input type="text" id="season" placeholder="e.g. SS26" oninput="debouncedSave()"></div>
+        <div class="cover-row"><label>Description</label><textarea id="style-desc" placeholder="Describe the garment..." oninput="debouncedSave()"></textarea></div>
+      </div>
+    </div>
+
+    <!-- SKETCHES PAGE -->
+    <div class="page" id="page-sketches">
+      <h2 class="page-title">Flat Sketches</h2>
+      <p class="page-subtitle">Upload front, back, and detail views of the garment</p>
+      <div class="sketch-grid" id="sketch-grid"></div>
+      <button class="add-row" onclick="addSketch()">+ Add Sketch View</button>
+    </div>
+
+    <!-- BILL OF MATERIALS -->
+    <div class="page" id="page-bom">
+      <h2 class="page-title">Bill of Materials (BOM)</h2>
+      <p class="page-subtitle">All fabrics, trims, closures, labels, and packaging materials</p>
+      <table>
+        <thead><tr><th>Material</th><th>Description</th><th>Color / Pantone</th><th>Supplier</th><th>Width</th><th>Quantity</th><th>Unit</th><th></th></tr></thead>
+        <tbody id="bom-body"></tbody>
+      </table>
+      <button class="add-row" onclick="addBomRow()">+ Add Material</button>
+    </div>
+
+    <!-- MEASUREMENT SPECS -->
+    <div class="page" id="page-measurements">
+      <h2 class="page-title">Measurement Specs</h2>
+      <p class="page-subtitle">Points of measurement with tolerances for the sample size</p>
+      <table>
+        <thead><tr><th>Point of Measurement</th><th>Sample Size</th><th>Measurement</th><th>Tolerance (+/-)</th><th>Unit</th><th></th></tr></thead>
+        <tbody id="meas-body"></tbody>
+      </table>
+      <button class="add-row" onclick="addMeasRow()">+ Add Measurement Point</button>
+    </div>
+
+    <!-- CONSTRUCTION DETAILS -->
+    <div class="page" id="page-construction">
+      <h2 class="page-title">Construction Details</h2>
+      <p class="page-subtitle">Stitch types, seam allowances, and construction notes</p>
+      <table>
+        <thead><tr><th>Area / Component</th><th>Stitch Type</th><th>Stitches Per Inch</th><th>Seam Allowance</th><th>Notes</th><th></th></tr></thead>
+        <tbody id="const-body"></tbody>
+      </table>
+      <button class="add-row" onclick="addConstRow()">+ Add Construction Detail</button>
+    </div>
+
+    <!-- SIZE GRADING -->
+    <div class="page" id="page-grading">
+      <h2 class="page-title">Size Grading Chart</h2>
+      <p class="page-subtitle">Measurement grades across the full size range</p>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Measurement Point</th><th>XS</th><th>S</th><th>M</th><th>L</th><th>XL</th><th></th></tr></thead>
+          <tbody id="grade-body"></tbody>
+        </table>
+      </div>
+      <button class="add-row" onclick="addGradeRow()">+ Add Grading Row</button>
+    </div>
+
+    <!-- COST SHEET -->
+    <div class="page" id="page-cost">
+      <h2 class="page-title">Cost Sheet</h2>
+      <p class="page-subtitle">Material costs, labor, and total per-unit cost breakdown</p>
+      <table>
+        <thead><tr><th>Component</th><th>Cost (USD)</th><th>Quantity</th><th>Subtotal</th><th>Notes</th><th></th></tr></thead>
+        <tbody id="cost-body"></tbody>
+      </table>
+      <button class="add-row" onclick="addCostRow()">+ Add Cost Item</button>
+      <div style="margin-top: 20px; background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); display: inline-block;">
+        <strong>Total per-unit cost: $<span id="cost-total">0.00</span></strong>
+      </div>
+    </div>
+
+    <!-- COLORWAYS -->
+    <div class="page" id="page-colorways">
+      <h2 class="page-title">Colorways</h2>
+      <p class="page-subtitle">Color variations for the garment</p>
+      <table>
+        <thead><tr><th>Color Name</th><th>Pantone Code</th><th>Swatch (hex)</th><th>Notes</th><th></th></tr></thead>
+        <tbody id="color-body"></tbody>
+      </table>
+      <button class="add-row" onclick="addColorRow()">+ Add Colorway</button>
+    </div>
+
+    <!-- LABELS & BRANDING -->
+    <div class="page" id="page-labels">
+      <h2 class="page-title">Labels & Branding</h2>
+      <p class="page-subtitle">Label placements, hang tag specs, and branding details</p>
+      <table>
+        <thead><tr><th>Label Type</th><th>Placement</th><th>Dimensions</th><th>Material</th><th>Attachment</th><th></th></tr></thead>
+        <tbody id="label-body"></tbody>
+      </table>
+      <button class="add-row" onclick="addLabelRow()">+ Add Label</button>
+    </div>
+
+    <!-- PACKAGING -->
+    <div class="page" id="page-packaging">
+      <h2 class="page-title">Packaging Specifications</h2>
+      <p class="page-subtitle">Poly bags, hang tags, boxing, and shipping requirements</p>
+      <table>
+        <thead><tr><th>Item</th><th>Material</th><th>Dimensions</th><th>Quantity per Unit</th><th>Notes</th><th></th></tr></thead>
+        <tbody id="pack-body"></tbody>
+      </table>
+      <button class="add-row" onclick="addPackRow()">+ Add Packaging Item</button>
+    </div>
+
+    <!-- CHANGE LOG -->
+    <div class="page" id="page-changelog">
+      <h2 class="page-title">Change Log</h2>
+      <p class="page-subtitle">Track revisions, comments, and changes to this tech pack</p>
+      <table>
+        <thead><tr><th>Date</th><th>Version</th><th>Change Description</th><th>Changed By</th><th>Status</th><th></th></tr></thead>
+        <tbody id="log-body"></tbody>
+      </table>
+      <button class="add-row" onclick="addLogRow()">+ Add Entry</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Export Overlay -->
+<div class="export-overlay" id="export-overlay">
+  <div class="export-box">
+    <div class="spinner"></div>
+    <h2>Generating PDF...</h2>
+    <p id="export-status">Rendering pages...</p>
+  </div>
+</div>
+
+<script>
+// ==================== UTILITY ====================
+function escapeHTML(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+// ==================== STATE ====================
+const STORAGE_KEY = 'easytechpack_v1';
+const MAX_IMG_SIZE = 400; // max width/height in pixels for stored images
+
+function getStore() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; }
+}
+function setStore(data) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    showSaveIndicator();
+  } catch(e) {
+    if (e.name === 'QuotaExceededError') {
+      alert('Storage full! Please use smaller images or start a new tech pack.');
+    } else {
+      console.error('Save failed:', e);
+    }
+  }
+}
+
+function showSaveIndicator() {
+  const el = document.getElementById('save-indicator');
+  el.classList.add('show');
+  clearTimeout(el._timeout);
+  el._timeout = setTimeout(() => el.classList.remove('show'), 1500);
+}
+
+// Debounce: wait 400ms after last keystroke before saving
+let _saveTimer = null;
+function debouncedSave() {
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(saveAll, 400);
+}
+
+function getState(key) { return getStore()[key] || []; }
+function setState(key, data) { const s = getStore(); s[key] = data; setStore(s); }
+
+// ==================== IMAGE COMPRESSION ====================
+function compressImage(dataUrl, callback) {
+  const img = new Image();
+  img.onload = function() {
+    const canvas = document.createElement('canvas');
+    let w = img.width, h = img.height;
+    if (w > MAX_IMG_SIZE || h > MAX_IMG_SIZE) {
+      if (w > h) { h = Math.round(h * MAX_IMG_SIZE / w); w = MAX_IMG_SIZE; }
+      else { w = Math.round(w * MAX_IMG_SIZE / h); h = MAX_IMG_SIZE; }
+    }
+    canvas.width = w;
+    canvas.height = h;
+    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+    callback(canvas.toDataURL('image/jpeg', 0.7));
+  };
+  img.src = dataUrl;
+}
+
+// ==================== SAVE ALL FIELDS AT ONCE ====================
+function saveAll() {
+  const s = getStore();
+  s.brandName = document.getElementById('brand-name').value;
+  s.styleName = document.getElementById('style-name').value;
+  s.packDate = document.getElementById('pack-date').value;
+  s.packVersion = document.getElementById('pack-version').value;
+  s.designerName = document.getElementById('designer-name').value;
+  s.season = document.getElementById('season').value;
+  s.styleDesc = document.getElementById('style-desc').value;
+  setStore(s);
+}
+
+// ==================== LOAD ====================
+function loadAll() {
+  const s = getStore();
+  if (s.brandName) document.getElementById('brand-name').value = s.brandName;
+  if (s.styleName) document.getElementById('style-name').value = s.styleName;
+  if (s.packDate) document.getElementById('pack-date').value = s.packDate;
+  if (s.packVersion) document.getElementById('pack-version').value = s.packVersion;
+  if (s.designerName) document.getElementById('designer-name').value = s.designerName;
+  if (s.season) document.getElementById('season').value = s.season;
+  if (s.styleDesc) document.getElementById('style-desc').value = s.styleDesc;
+  if (s.logoDataUrl) showLogo(s.logoDataUrl);
+}
+
+// ==================== LOGO ====================
+function handleLogo(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    compressImage(reader.result, (compressed) => {
+      showLogo(compressed);
+      const s = getStore(); s.logoDataUrl = compressed; setStore(s);
+    });
+  };
+  reader.readAsDataURL(file);
+}
+function showLogo(src) {
+  document.getElementById('logo-preview').innerHTML = '<img src="' + escapeHTML(src) + '" alt="Logo">';
+}
+
+// ==================== NEW TECH PACK ====================
+function newTechPack() {
+  if (!confirm('Start a new tech pack? All current data will be cleared.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
+}
+
+// ==================== MOBILE SIDEBAR ====================
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('sidebar-overlay');
+  sb.classList.toggle('open');
+  ov.classList.toggle('show');
+}
+
+// ==================== GENERIC TABLE HELPERS ====================
+function renderTable(bodyId, cols, rows) {
+  const tbody = document.getElementById(bodyId);
+  tbody.innerHTML = '';
+  rows.forEach((row, i) => {
+    const tr = document.createElement('tr');
+    cols.forEach(c => {
+      const td = document.createElement('td');
+      if (c.type === 'color') {
+        td.innerHTML = '<input type="color" value="' + escapeHTML(row[c.key] || '#000000') + '" style="width:40px;height:30px;border:none;padding:0;cursor:pointer;" onchange="' + c.fn + '(' + i + ',this.value)">';
+      } else {
+        td.innerHTML = '<input type="text" value="' + escapeHTML(row[c.key]) + '" placeholder="' + escapeHTML(c.ph) + '" oninput="' + c.fn + '(' + i + ',\'' + c.key + '\',this.value)">';
+      }
+      tr.appendChild(td);
+    });
+    const td = document.createElement('td');
+    td.innerHTML = '<button class="del-btn" onclick="' + cols[0].delFn + '(' + i + ')">&times;</button>';
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+  });
+}
+
+// ==================== SKETCHES ====================
+function addSketch() {
+  const rows = getState('sketches');
+  rows.push({ image: '', label: '', notes: '' });
+  setState('sketches', rows); renderSketches();
+}
+function delSketch(i) {
+  const rows = getState('sketches'); rows.splice(i, 1); setState('sketches', rows); renderSketches();
+}
+function renderSketches() {
+  const grid = document.getElementById('sketch-grid');
+  const rows = getState('sketches');
+  grid.innerHTML = '';
+  if (rows.length === 0) { grid.innerHTML = '<div style="color:#888;font-size:13px;padding:20px;">No sketches added yet. Click "+ Add Sketch View" to start.</div>'; return; }
+  rows.forEach((r, i) => {
+    const card = document.createElement('div'); card.className = 'sketch-card';
+    const imgDiv = document.createElement('div');
+    imgDiv.className = 'sketch-card-img';
+    imgDiv.onclick = () => document.getElementById('sketch-file-' + i).click();
+    if (r.image) { const img = document.createElement('img'); img.src = r.image; img.alt = 'Sketch'; imgDiv.appendChild(img); }
+    else { const span = document.createElement('span'); span.textContent = 'Click to upload image'; imgDiv.appendChild(span); }
+    card.appendChild(imgDiv);
+
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file'; fileInput.accept = 'image/*'; fileInput.style.display = 'none';
+    fileInput.id = 'sketch-file-' + i;
+    fileInput.onchange = function() { uploadSketch(i, this); };
+    card.appendChild(fileInput);
+
+    const labelDiv = document.createElement('div'); labelDiv.className = 'sketch-card-input';
+    labelDiv.innerHTML = '<label>View Label</label>';
+    const labelInput = document.createElement('input');
+    labelInput.type = 'text'; labelInput.value = r.label || ''; labelInput.placeholder = 'e.g. Front View';
+    labelInput.oninput = function() { updateSketch(i, 'label', this.value); };
+    labelDiv.appendChild(labelInput);
+    card.appendChild(labelDiv);
+
+    const notesDiv = document.createElement('div'); notesDiv.className = 'sketch-card-input';
+    notesDiv.innerHTML = '<label>Notes</label>';
+    const notesInput = document.createElement('input');
+    notesInput.type = 'text'; notesInput.value = r.notes || ''; notesInput.placeholder = 'Any details...';
+    notesInput.oninput = function() { updateSketch(i, 'notes', this.value); };
+    notesDiv.appendChild(notesInput);
+    card.appendChild(notesDiv);
+
+    const delDiv = document.createElement('div'); delDiv.style.padding = '8px 12px'; delDiv.style.textAlign = 'right';
+    const delBtn = document.createElement('button'); delBtn.className = 'del-btn'; delBtn.innerHTML = '&times;';
+    delBtn.onclick = () => delSketch(i);
+    delDiv.appendChild(delBtn);
+    card.appendChild(delDiv);
+
+    grid.appendChild(card);
+  });
+}
+function uploadSketch(i, input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    compressImage(reader.result, (compressed) => {
+      const rows = getState('sketches'); rows[i].image = compressed; setState('sketches', rows); renderSketches();
+    });
+  };
+  reader.readAsDataURL(file);
+}
+function updateSketch(i, key, val) { const rows = getState('sketches'); rows[i][key] = val; setState('sketches', rows); }
+
+// ==================== BOM ====================
+function addBomRow() { const rows = getState('bom'); rows.push({ material:'', desc:'', color:'', supplier:'', width:'', qty:'', unit:'' }); setState('bom', rows); renderBom(); }
+function delBomRow(i) { const rows = getState('bom'); rows.splice(i,1); setState('bom', rows); renderBom(); }
+function updateBom(i, key, val) { const rows = getState('bom'); rows[i][key] = val; setState('bom', rows); }
+function renderBom() { renderTable('bom-body', [
+  {key:'material',ph:'Main Fabric',fn:'updateBom',delFn:'delBomRow'},
+  {key:'desc',ph:'Description',fn:'updateBom',delFn:'delBomRow'},
+  {key:'color',ph:'Color / Pantone',fn:'updateBom',delFn:'delBomRow'},
+  {key:'supplier',ph:'Supplier',fn:'updateBom',delFn:'delBomRow'},
+  {key:'width',ph:'Width',fn:'updateBom',delFn:'delBomRow'},
+  {key:'qty',ph:'Qty',fn:'updateBom',delFn:'delBomRow'},
+  {key:'unit',ph:'yards/pcs',fn:'updateBom',delFn:'delBomRow'},
+], getState('bom')); }
+
+// ==================== MEASUREMENTS ====================
+function addMeasRow() { const rows = getState('meas'); rows.push({ point:'', size:'', meas:'', tol:'', unit:'' }); setState('meas', rows); renderMeas(); }
+function delMeasRow(i) { const rows = getState('meas'); rows.splice(i,1); setState('meas', rows); renderMeas(); }
+function updateMeas(i, key, val) { const rows = getState('meas'); rows[i][key] = val; setState('meas', rows); }
+function renderMeas() { renderTable('meas-body', [
+  {key:'point',ph:'e.g. Chest',fn:'updateMeas',delFn:'delMeasRow'},
+  {key:'size',ph:'e.g. M',fn:'updateMeas',delFn:'delMeasRow'},
+  {key:'meas',ph:'22"',fn:'updateMeas',delFn:'delMeasRow'},
+  {key:'tol',ph:'+/- 0.5"',fn:'updateMeas',delFn:'delMeasRow'},
+  {key:'unit',ph:'inches/cm',fn:'updateMeas',delFn:'delMeasRow'},
+], getState('meas')); }
+
+// ==================== CONSTRUCTION ====================
+function addConstRow() { const rows = getState('const'); rows.push({ area:'', stype:'', spi:'', seam:'', notes:'' }); setState('const', rows); renderConst(); }
+function delConstRow(i) { const rows = getState('const'); rows.splice(i,1); setState('const', rows); renderConst(); }
+function updateConst(i, key, val) { const rows = getState('const'); rows[i][key] = val; setState('const', rows); }
+function renderConst() { renderTable('const-body', [
+  {key:'area',ph:'e.g. Side seam',fn:'updateConst',delFn:'delConstRow'},
+  {key:'stype',ph:'e.g. Overlock',fn:'updateConst',delFn:'delConstRow'},
+  {key:'spi',ph:'12-14',fn:'updateConst',delFn:'delConstRow'},
+  {key:'seam',ph:'1/2"',fn:'updateConst',delFn:'delConstRow'},
+  {key:'notes',ph:'Notes',fn:'updateConst',delFn:'delConstRow'},
+], getState('const')); }
+
+// ==================== SIZE GRADING ====================
+function addGradeRow() { const rows = getState('grade'); rows.push({ point:'', xs:'', s:'', m:'', l:'', xl:'' }); setState('grade', rows); renderGrade(); }
+function delGradeRow(i) { const rows = getState('grade'); rows.splice(i,1); setState('grade', rows); renderGrade(); }
+function updateGrade(i, key, val) { const rows = getState('grade'); rows[i][key] = val; setState('grade', rows); }
+function renderGrade() { renderTable('grade-body', [
+  {key:'point',ph:'Measurement',fn:'updateGrade',delFn:'delGradeRow'},
+  {key:'xs',ph:'',fn:'updateGrade',delFn:'delGradeRow'},
+  {key:'s',ph:'',fn:'updateGrade',delFn:'delGradeRow'},
+  {key:'m',ph:'',fn:'updateGrade',delFn:'delGradeRow'},
+  {key:'l',ph:'',fn:'updateGrade',delFn:'delGradeRow'},
+  {key:'xl',ph:'',fn:'updateGrade',delFn:'delGradeRow'},
+], getState('grade')); }
+
+// ==================== COST SHEET ====================
+function addCostRow() { const rows = getState('cost'); rows.push({ component:'', cost:'', qty:'', notes:'' }); setState('cost', rows); renderCost(); }
+function delCostRow(i) { const rows = getState('cost'); rows.splice(i,1); setState('cost', rows); renderCost(); }
+function updateCost(i, key, val) { const rows = getState('cost'); rows[i][key] = val; setState('cost', rows); calcCostTotal(); }
+function renderCost() {
+  const tbody = document.getElementById('cost-body');
+  const rows = getState('cost');
+  tbody.innerHTML = '';
+  rows.forEach((r, i) => {
+    const subtotal = (parseFloat(r.cost)||0) * (parseInt(r.qty)||0);
+    const tr = document.createElement('tr');
+    const cell = (html) => { const td = document.createElement('td'); td.innerHTML = html; return td; };
+    tr.appendChild(cell('<input value="' + escapeHTML(r.component) + '" placeholder="Component" oninput="updateCost(' + i + ',\'component\',this.value)">'));
+    tr.appendChild(cell('<input value="' + escapeHTML(r.cost) + '" placeholder="0.00" type="number" step="0.01" oninput="updateCost(' + i + ',\'cost\',this.value)">'));
+    tr.appendChild(cell('<input value="' + escapeHTML(r.qty) + '" placeholder="1" type="number" oninput="updateCost(' + i + ',\'qty\',this.value)">'));
+    tr.appendChild(cell('$' + subtotal.toFixed(2)));
+    tr.appendChild(cell('<input value="' + escapeHTML(r.notes) + '" placeholder="Notes" oninput="updateCost(' + i + ',\'notes\',this.value)">'));
+    const delTd = document.createElement('td');
+    const delBtn = document.createElement('button'); delBtn.className = 'del-btn'; delBtn.innerHTML = '&times;';
+    delBtn.onclick = () => delCostRow(i);
+    delTd.appendChild(delBtn);
+    tr.appendChild(delTd);
+    tbody.appendChild(tr);
+  });
+  calcCostTotal();
+}
+function calcCostTotal() {
+  const rows = getState('cost');
+  const total = rows.reduce((sum, r) => sum + (parseFloat(r.cost)||0) * (parseInt(r.qty)||0), 0);
+  document.getElementById('cost-total').textContent = total.toFixed(2);
+}
+
+// ==================== COLORWAYS ====================
+function addColorRow() { const rows = getState('color'); rows.push({ name:'', pantone:'', swatch:'#000000', notes:'' }); setState('color', rows); renderColor(); }
+function delColorRow(i) { const rows = getState('color'); rows.splice(i,1); setState('color', rows); renderColor(); }
+function updateColor(i, key, val) { const rows = getState('color'); rows[i][key] = val; setState('color', rows); }
+function renderColor() {
+  const tbody = document.getElementById('color-body');
+  const rows = getState('color');
+  tbody.innerHTML = '';
+  rows.forEach((r, i) => {
+    const tr = document.createElement('tr');
+    const cell = (html) => { const td = document.createElement('td'); td.innerHTML = html; return td; };
+    tr.appendChild(cell('<input value="' + escapeHTML(r.name) + '" placeholder="e.g. Midnight Blue" oninput="updateColor(' + i + ',\'name\',this.value)">'));
+    tr.appendChild(cell('<input value="' + escapeHTML(r.pantone) + '" placeholder="e.g. 19-4024" oninput="updateColor(' + i + ',\'pantone\',this.value)">'));
+    tr.appendChild(cell('<input type="color" value="' + escapeHTML(r.swatch || '#000000') + '" style="width:40px;height:30px;border:none;padding:0;cursor:pointer;" onchange="updateColor(' + i + ',\'swatch\',this.value)">'));
+    tr.appendChild(cell('<input value="' + escapeHTML(r.notes) + '" placeholder="Notes" oninput="updateColor(' + i + ',\'notes\',this.value)">'));
+    const delTd = document.createElement('td');
+    const delBtn = document.createElement('button'); delBtn.className = 'del-btn'; delBtn.innerHTML = '&times;';
+    delBtn.onclick = () => delColorRow(i);
+    delTd.appendChild(delBtn);
+    tr.appendChild(delTd);
+    tbody.appendChild(tr);
+  });
+}
+
+// ==================== LABELS ====================
+function addLabelRow() { const rows = getState('labels'); rows.push({ type:'', placement:'', dimensions:'', material:'', attachment:'' }); setState('labels', rows); renderLabels(); }
+function delLabelRow(i) { const rows = getState('labels'); rows.splice(i,1); setState('labels', rows); renderLabels(); }
+function updateLabels(i, key, val) { const rows = getState('labels'); rows[i][key] = val; setState('labels', rows); }
+function renderLabels() { renderTable('label-body', [
+  {key:'type',ph:'e.g. Main label',fn:'updateLabels',delFn:'delLabelRow'},
+  {key:'placement',ph:'e.g. Center back neck',fn:'updateLabels',delFn:'delLabelRow'},
+  {key:'dimensions',ph:'e.g. 2" x 1"',fn:'updateLabels',delFn:'delLabelRow'},
+  {key:'material',ph:'e.g. Woven',fn:'updateLabels',delFn:'delLabelRow'},
+  {key:'attachment',ph:'e.g. Sewn in',fn:'updateLabels',delFn:'delLabelRow'},
+], getState('labels')); }
+
+// ==================== PACKAGING ====================
+function addPackRow() { const rows = getState('pack'); rows.push({ item:'', material:'', dimensions:'', qty:'', notes:'' }); setState('pack', rows); renderPack(); }
+function delPackRow(i) { const rows = getState('pack'); rows.splice(i,1); setState('pack', rows); renderPack(); }
+function updatePack(i, key, val) { const rows = getState('pack'); rows[i][key] = val; setState('pack', rows); }
+function renderPack() { renderTable('pack-body', [
+  {key:'item',ph:'e.g. Poly bag',fn:'updatePack',delFn:'delPackRow'},
+  {key:'material',ph:'e.g. Clear PE',fn:'updatePack',delFn:'delPackRow'},
+  {key:'dimensions',ph:'e.g. 10" x 14"',fn:'updatePack',delFn:'delPackRow'},
+  {key:'qty',ph:'1',fn:'updatePack',delFn:'delPackRow'},
+  {key:'notes',ph:'Notes',fn:'updatePack',delFn:'delPackRow'},
+], getState('pack')); }
+
+// ==================== CHANGE LOG ====================
+function addLogRow() { const rows = getState('log'); rows.push({ date:new Date().toISOString().split('T')[0], version:'', change:'', by:'', status:'Pending' }); setState('log', rows); renderLog(); }
+function delLogRow(i) { const rows = getState('log'); rows.splice(i,1); setState('log', rows); renderLog(); }
+function updateLog(i, key, val) { const rows = getState('log'); rows[i][key] = val; setState('log', rows); }
+function renderLog() {
+  const tbody = document.getElementById('log-body');
+  const rows = getState('log');
+  tbody.innerHTML = '';
+  rows.forEach((r, i) => {
+    const tr = document.createElement('tr');
+    const cell = (html) => { const td = document.createElement('td'); td.innerHTML = html; return td; };
+    tr.appendChild(cell('<input type="date" value="' + escapeHTML(r.date) + '" oninput="updateLog(' + i + ',\'date\',this.value)">'));
+    tr.appendChild(cell('<input value="' + escapeHTML(r.version) + '" placeholder="v1.0" oninput="updateLog(' + i + ',\'version\',this.value)">'));
+    tr.appendChild(cell('<input value="' + escapeHTML(r.change) + '" placeholder="What changed" oninput="updateLog(' + i + ',\'change\',this.value)">'));
+    tr.appendChild(cell('<input value="' + escapeHTML(r.by) + '" placeholder="Who" oninput="updateLog(' + i + ',\'by\',this.value)">'));
+    const statusTd = document.createElement('td');
+    const sel = document.createElement('select');
+    sel.onchange = function() { updateLog(i, 'status', this.value); };
+    ['Pending','In Progress','Done'].forEach(s => {
+      const opt = document.createElement('option'); opt.value = s; opt.textContent = s;
+      if (r.status === s) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    statusTd.appendChild(sel);
+    tr.appendChild(statusTd);
+
+    const delTd = document.createElement('td');
+    const delBtn = document.createElement('button'); delBtn.className = 'del-btn'; delBtn.innerHTML = '&times;';
+    delBtn.onclick = () => delLogRow(i);
+    delTd.appendChild(delBtn);
+    tr.appendChild(delTd);
+    tbody.appendChild(tr);
+  });
+}
+
+// ==================== NAVIGATION ====================
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    item.classList.add('active');
+    document.getElementById('page-' + item.dataset.page).classList.add('active');
+    // Close mobile sidebar after navigation
+    if (window.innerWidth <= 768) toggleSidebar();
+  });
+});
+
+// ==================== PDF EXPORT ====================
+async function exportPDF() {
+  if (typeof html2canvas === 'undefined' || typeof jspdf === 'undefined') {
+    alert('PDF libraries failed to load. Check your internet connection and reload the page.');
+    return;
+  }
+
+  const overlay = document.getElementById('export-overlay');
+  const statusEl = document.getElementById('export-status');
+  const btn = document.getElementById('export-btn');
+  overlay.classList.add('show');
+  btn.disabled = true;
+
+  try {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pageWidth = 210;
+    const pageHeight = 297;
+    const margin = 15;
+
+    const pages = ['cover','sketches','bom','measurements','construction','grading','cost','colorways','labels','packaging','changelog'];
+
+    for (let pi = 0; pi < pages.length; pi++) {
+      statusEl.textContent = 'Rendering: ' + pages[pi] + ' (' + (pi+1) + '/' + pages.length + ')';
+
+      const pageEl = document.getElementById('page-' + pages[pi]);
+      // Save original styles
+      const origDisplay = pageEl.style.display;
+      const origPosition = pageEl.style.position;
+      const origLeft = pageEl.style.left;
+      const origWidth = pageEl.style.width;
+      const origBg = pageEl.style.background;
+      const origPadding = pageEl.style.padding;
+
+      pageEl.style.display = 'block';
+      pageEl.style.position = 'absolute';
+      pageEl.style.left = '-9999px';
+      pageEl.style.width = '800px';
+      pageEl.style.background = '#fff';
+      pageEl.style.padding = '20px';
+
+      try {
+        const canvas = await html2canvas(pageEl, { scale: 1.5, useCORS: true, logging: false, backgroundColor: '#ffffff' });
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+        const imgWidth = pageWidth - margin * 2;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+        if (pi > 0) pdf.addPage();
+
+        pdf.setFontSize(8);
+        pdf.setTextColor(150);
+        const brand = document.getElementById('brand-name').value || 'EasyTechPack';
+        const style = document.getElementById('style-name').value || '';
+        pdf.text(brand + ' — ' + style + ' — Page ' + (pi+1), margin, 10);
+
+        if (imgHeight > pageHeight - margin * 2) {
+          const subPages = Math.ceil(imgHeight / (pageHeight - margin * 2));
+          for (let sp = 0; sp < subPages; sp++) {
+            if (sp > 0) {
+              pdf.addPage();
+              pdf.setFontSize(8);
+              pdf.setTextColor(150);
+              pdf.text(brand + ' — ' + style + ' — Page ' + (pi+1) + '.' + (sp+1), margin, 10);
+            }
+            const srcY = sp * (pageHeight - margin * 2) * (canvas.width / imgWidth);
+            const srcH = Math.min((pageHeight - margin * 2) * (canvas.width / imgWidth), canvas.height - srcY);
+            const tmpCanvas = document.createElement('canvas');
+            tmpCanvas.width = canvas.width;
+            tmpCanvas.height = srcH;
+            tmpCanvas.getContext('2d').drawImage(canvas, 0, srcY, canvas.width, srcH, 0, 0, canvas.width, srcH);
+            const tmpImg = tmpCanvas.toDataURL('image/jpeg', 0.95);
+            const renderH = (srcH * imgWidth) / canvas.width;
+            pdf.addImage(tmpImg, 'JPEG', margin, 15, imgWidth, Math.min(renderH, pageHeight - 30));
+          }
+        } else {
+          pdf.addImage(imgData, 'JPEG', margin, 15, imgWidth, imgHeight);
+        }
+      } catch(e) { console.error('PDF page error:', pages[pi], e); }
+
+      // Always restore styles
+      pageEl.style.display = origDisplay;
+      pageEl.style.position = origPosition;
+      pageEl.style.left = origLeft;
+      pageEl.style.width = origWidth;
+      pageEl.style.background = origBg;
+      pageEl.style.padding = origPadding;
+    }
+
+    const brandName = (document.getElementById('brand-name').value || 'TechPack').replace(/\s+/g, '-');
+    const styleName = (document.getElementById('style-name').value || 'Style').replace(/\s+/g, '-');
+    pdf.save(brandName + '_' + styleName + '.pdf');
+  } catch(e) {
+    alert('Export failed: ' + e.message);
+    console.error(e);
+  }
+
+  overlay.classList.remove('show');
+  btn.disabled = false;
+}
+
+// ==================== INIT ====================
+function init() {
+  loadAll();
+  renderSketches();
+  renderBom();
+  renderMeas();
+  renderConst();
+  renderGrade();
+  renderCost();
+  renderColor();
+  renderLabels();
+  renderPack();
+  renderLog();
+
+  // Default date to today if empty
+  if (!document.getElementById('pack-date').value) {
+    document.getElementById('pack-date').value = new Date().toISOString().split('T')[0];
+    saveAll();
+  }
+}
+
+init();
+</script>
+</body>
+</html>
